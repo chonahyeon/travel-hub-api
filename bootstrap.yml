@@ -1,0 +1,3 @@
+spring:
+  active:
+    profile: develop
