@@ -1,0 +1,22 @@
+app:
+  cron:
+    reload: 0 * * * * *
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    travel-hub:
+      jdbc-url: jdbc:mysql://127.0.0.1:3306/std_oauth?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+      username: test
+      password: test
+      connection-timeout: 60000
+      idle-timeout: 30000
+      max-lifetime: 420000
+      validation-timeout: 10000
+      maximum-pool-size: 1
+      minimum-idle: 1
+      pool-name: connectionPool_dev
+#logging:
+#  config: ./logback-spring.xml

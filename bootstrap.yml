@@ -1,3 +1,6 @@
 spring:
-  active:
-    profile: develop
+  profiles:
+    active: develop
+travel-hub:
+  config:
+    import: "file:./config/${spring.profiles.active}.yml"
