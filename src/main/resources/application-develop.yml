@@ -8,9 +8,9 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     travel-hub:
-      jdbc-url: jdbc:mysql://127.0.0.1:3306/std_oauth?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
-      username: test
-      password: test
+      jdbc-url: jdbc:mysql://localhost:3306/travel?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+      username: kmhyeok
+      password: alsgur4316@
       connection-timeout: 60000
       idle-timeout: 30000
       max-lifetime: 420000
@@ -18,5 +18,6 @@ spring:
       maximum-pool-size: 1
       minimum-idle: 1
       pool-name: connectionPool_dev
+
 #logging:
 #  config: ./logback-spring.xml
