@@ -30,7 +30,7 @@ public class TravelDBConfiguration {
     public EntityManagerFactory travelJpaSqlSessionFactory(DataSource dataSource) {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
-        em.setPackagesToScan("com.travelhub.travelhub_api.api.data.mysql.entity");
+        em.setPackagesToScan("com.travelhub.travelhub_api.data.mysql.entity");
 
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

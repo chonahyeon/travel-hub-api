@@ -14,13 +14,9 @@
         <encoder>
             <pattern> ▶ %-5level %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger{35}[%method:%line] - %msg%n </pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <!-- or whenever the file size reaches 100MB -->
-                <maxFileSize>50MB</maxFileSize>
-                <!-- kb, mb, gb -->
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
     </appender>

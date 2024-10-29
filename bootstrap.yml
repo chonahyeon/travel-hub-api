@@ -4,3 +4,5 @@ spring:
 travel-hub:
   config:
     import: "file:./config/${spring.profiles.active}.yml"
+logging:
+  config: ./logback-spring.xml
