@@ -9,8 +9,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     travel-hub:
       jdbc-url: jdbc:mysql://localhost:3306/travel?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
-      username: kmhyeok
-      password: alsgur4316@
+      username: ${TRAVEL_DB_USER}
+      password: ${TRAVEL_DB_PWD}
       connection-timeout: 60000
       idle-timeout: 30000
       max-lifetime: 420000
