@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
+import com.travelhub.travelhub_api.data.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,19 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "u_idx")
-    private Long uIdx;
+    @Column(name = "us_idx")
+    private Long usIdx;
 
-    @Column(name = "u_id", nullable = false)
-    private String uId;
+    @Column(name = "us_id", nullable = false)
+    private String usId;
 
+    @Column(name = "us_name", nullable = false)
+    private String usName;
+
+    @Column(name = "us_email", nullable = false)
+    private String usEmail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "us_role", nullable = false)
+    private Role usRole;
 }

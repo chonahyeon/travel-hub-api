@@ -19,5 +19,4 @@ public class ContentsBookmark {
 
     @Column(name = "ct_idx", nullable = false)
     private Long ctIdx;
-
 }
