@@ -22,6 +22,7 @@ public class TokenRequest {
 
 	/*
 	 * AccessToken 발급을 위한 Request
+	 * redirect url 은 code 발급 path 와 일치해야함.
 	 */
 	public static TokenRequest ofAccessToken(String authorizationCode) {
 		return TokenRequest.builder()

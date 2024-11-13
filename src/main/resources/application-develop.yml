@@ -4,11 +4,14 @@ app:
 spring:
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     travel-hub:
-      jdbc-url: jdbc:mysql://localhost:3306/travel?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+      jdbc-url: jdbc:mysql://localhost:3306/travel_hub?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
       username: test
       password: test
       connection-timeout: 60000
@@ -19,5 +22,8 @@ spring:
       minimum-idle: 1
       pool-name: connectionPool_dev
 
-#logging:
+
+server:
+  port: 80
+# logging:
 #  config: ./logback-spring.xml
