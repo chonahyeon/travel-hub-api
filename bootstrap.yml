@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: develop
+    include: oauth
 travel-hub:
   config:
     import: "file:./config/${spring.profiles.active}.yml"

@@ -85,8 +85,6 @@ public class Properties {
         log.info("===== config yaml reloading end. =====");
 
         lastModified = currentModified;
-        TravelHubResource.clientId = get("google.oauth.clientId", String.class, null);
-        TravelHubResource.clientSecret = get("google.oauth.clientSecret", String.class, null);
     }
 
     private Map<String, Object> flatten(Map<String, Object> map) {
