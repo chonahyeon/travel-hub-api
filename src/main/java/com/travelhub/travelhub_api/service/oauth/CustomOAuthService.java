@@ -1,8 +1,6 @@
 package com.travelhub.travelhub_api.service.oauth;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -39,42 +37,20 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        // User Profile Info
+        // user profile
         Map<String, Object> userProfile = oAuth2User.getAttributes();
         log.info("login code : {}, user info : {}", providerCode, userProfile);
 
-        // User 별 고유 값 가져오기.
-        String userPk = String.valueOf(userProfile.get(userNameAttributeName));
-        Optional<User> user = userRepository.findById(userPk);
+        UserSessionDto userSession = UserSessionDto.builder()
+                .name(userNameAttributeName)
+                .attribute(userProfile)
+                .role(Role.ROLE_USER)
+                .build();
 
-        // todo : 토큰 발급
-        AtomicReference<UserSessionDto> userSessionDto = new AtomicReference<>(new UserSessionDto());
-        user.ifPresentOrElse(
-                exit -> {
-                    userSessionDto.set(
-                            UserSessionDto.builder()
-                                    .name(userNameAttributeName)
-                                    .attribute(userProfile)
-                                    .role(Role.ROLE_USER)
-                                    .build()
-                    );
-                } ,
-                () -> {
-                    UserSessionDto guest = UserSessionDto.builder()
-                            .name(userNameAttributeName)
-                            .attribute(userProfile)
-                            .role(Role.ROLE_GUEST)
-                            .build();
-
-                    userSessionDto.set(guest);
-
-                    // user 정보 저장.
-                    User saveUser = guest.convert();
-                    userRepository.save(saveUser);
-                }
-        );
+        User saveUser = userSession.convert();
+        userRepository.save(saveUser);
 
         // Security context에 저장할 객체 생성
-        return userSessionDto.get();
+        return userSession;
     }
 }

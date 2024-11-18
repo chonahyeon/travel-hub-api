@@ -41,14 +41,19 @@ public class UserSessionDto implements OAuth2User {
 		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
 	}
 
+	/*
+	 * UseSessionDto -> User Entity
+	 * 이메일은 유효할때만 저장.
+	 */
 	public User convert() {
 		boolean emailVerified = Boolean.parseBoolean(attribute.get("email_verified").toString());
+
 		return User.builder()
 				.usId(attribute.get(this.name).toString())
 				.usName(attribute.get("name").toString())
 				.usEmail(emailVerified ? attribute.get("email").toString() : null)
 				.usRole(this.role)
-				.usProfile(attribute.get("email").toString())
+				.usProfile(attribute.get("picture").toString())
 				.build();
 	}
 }

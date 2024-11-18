@@ -1,6 +1,8 @@
 package com.travelhub.travelhub_api.common.configuration;
 
 import jakarta.persistence.EntityManagerFactory;
+
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
+@EnableAutoConfiguration
 @EnableJpaRepositories(value = "com.travelhub.travelhub_api.data.mysql.repository", entityManagerFactoryRef = "travelJpaSqlSessionFactory", transactionManagerRef = "travelTransactionManager")
 public class TravelDBConfiguration {
     
