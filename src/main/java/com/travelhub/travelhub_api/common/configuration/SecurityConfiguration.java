@@ -1,5 +1,10 @@
 package com.travelhub.travelhub_api.common.configuration;
 
+import com.travelhub.travelhub_api.common.component.auth.JwtAuthenticationFilter;
+import com.travelhub.travelhub_api.common.component.auth.JwtExceptionHandlingFilter;
+import com.travelhub.travelhub_api.common.component.auth.OAuth2SuccessHandler;
+import com.travelhub.travelhub_api.service.auth.OAuthUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,20 +13,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import com.travelhub.travelhub_api.common.component.OAuth2SuccessHandler;
-import com.travelhub.travelhub_api.service.oauth.CustomOAuthService;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final CustomOAuthService customOAuthService;
+    private final OAuthUserService OAuthUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionHandlingFilter jwtExceptionHandlingFilter;
 
     /**
      * 시큐리티 미적용 항목
@@ -46,18 +49,20 @@ public class SecurityConfiguration {
                         request
                                 .requestMatchers(
                                         new AntPathRequestMatcher("/"),
-                                        new AntPathRequestMatcher("/login/**")
+                                        new AntPathRequestMatcher("/login/**"),
+                                        new AntPathRequestMatcher("/travel/v1/auth/refresh")
                                 )
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
                 );
 
-        // oauth 설정 (.yml 기준으로 code 및 token 발급까지 자동으로 해줌)
-        http.oauth2Login(oauth2Configurer ->
-                oauth2Configurer.userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuthService))
-                        .successHandler(oAuth2SuccessHandler)
-        );
+        // oauth 및 token filter 설정
+        http.oauth2Login(oauth2Configurer -> oauth2Configurer.userInfoEndpoint(
+                userInfoEndpointConfig -> userInfoEndpointConfig.userService(OAuthUserService))
+                .successHandler(oAuth2SuccessHandler))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionHandlingFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

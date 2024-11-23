@@ -3,11 +3,9 @@ app:
     reload: 0 * * * * *
 spring:
   jpa:
+#    generate-ddl: true
     hibernate:
       ddl-auto: create
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     travel-hub:
@@ -21,6 +19,10 @@ spring:
       maximum-pool-size: 1
       minimum-idle: 1
       pool-name: connectionPool_dev
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 
 server:

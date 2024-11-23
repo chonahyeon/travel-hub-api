@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.data.dto;
+package com.travelhub.travelhub_api.data.dto.auth;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,8 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.travelhub.travelhub_api.data.enums.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.User;
+import com.travelhub.travelhub_api.data.enums.common.Role;
+import com.travelhub.travelhub_api.data.mysql.entity.common.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Getter
-public class UserSessionDto implements OAuth2User {
+public class OAuthUserDto implements OAuth2User {
 
 	private String name;
 	private Map<String,Object> attribute;
@@ -39,6 +39,10 @@ public class UserSessionDto implements OAuth2User {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+	}
+
+	public String getUserId() {
+		return attribute.get(name).toString();
 	}
 
 	/*

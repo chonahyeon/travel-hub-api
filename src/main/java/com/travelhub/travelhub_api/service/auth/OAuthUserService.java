@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.service.oauth;
+package com.travelhub.travelhub_api.service.auth;
 
 import java.util.Map;
 
@@ -8,10 +8,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.travelhub.travelhub_api.data.dto.UserSessionDto;
-import com.travelhub.travelhub_api.data.enums.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.User;
-import com.travelhub.travelhub_api.data.mysql.repository.UserRepository;
+import com.travelhub.travelhub_api.data.dto.auth.OAuthUserDto;
+import com.travelhub.travelhub_api.data.enums.common.Role;
+import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CustomOAuthService extends DefaultOAuth2UserService {
+public class OAuthUserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
@@ -41,7 +41,7 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
         Map<String, Object> userProfile = oAuth2User.getAttributes();
         log.info("login code : {}, user info : {}", providerCode, userProfile);
 
-        UserSessionDto userSession = UserSessionDto.builder()
+        OAuthUserDto userSession = OAuthUserDto.builder()
                 .name(userNameAttributeName)
                 .attribute(userProfile)
                 .role(Role.ROLE_USER)
@@ -49,8 +49,6 @@ public class CustomOAuthService extends DefaultOAuth2UserService {
 
         User saveUser = userSession.convert();
         userRepository.save(saveUser);
-
-        // Security context에 저장할 객체 생성
         return userSession;
     }
 }

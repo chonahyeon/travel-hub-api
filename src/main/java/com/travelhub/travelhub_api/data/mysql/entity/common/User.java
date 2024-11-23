@@ -1,18 +1,12 @@
-package com.travelhub.travelhub_api.data.mysql.entity;
+package com.travelhub.travelhub_api.data.mysql.entity.common;
 
-import org.hibernate.annotations.DynamicInsert;
-
-import com.travelhub.travelhub_api.data.enums.Role;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import com.travelhub.travelhub_api.data.enums.common.Role;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 @Getter
 @Entity

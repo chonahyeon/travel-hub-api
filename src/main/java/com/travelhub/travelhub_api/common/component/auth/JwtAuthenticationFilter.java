@@ -1,0 +1,60 @@
+package com.travelhub.travelhub_api.common.component.auth;
+
+import com.travelhub.travelhub_api.service.auth.JwtService;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_USER;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtService jwtService;
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        Cookie[] cookies = request.getCookies();
+
+        // 쿠키에 토큰이 있으면 복호화 진행. 없으면 oauth 로그인.
+        if (Objects.nonNull(cookies)) {
+            Optional<String> accessToken = jwtService.findCookie(cookies, "accessToken");
+
+            // 유효한 토큰일때만 인증정보 세팅.
+            if (accessToken.isPresent()) {
+                String token = accessToken.get();
+                Claims claims = jwtService.parseToken(token, false);
+
+                String usId = claims.get("usId").toString();
+                jwtService.validUser(usId, token, false);
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        usId,
+                        null,
+                        Collections.singletonList(new SimpleGrantedAuthority(ROLE_USER.name()))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
