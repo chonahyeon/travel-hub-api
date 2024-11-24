@@ -32,17 +32,20 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.1.4'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:3.3.4'
+//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:3.3.4'
 
 	implementation 'junit:junit:4.12'
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	implementation "org.springframework.boot:spring-boot-starter-security"
+//	implementation "org.springframework.boot:spring-boot-starter-security"
 	implementation 'com.google.code.gson:gson'
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 
 	// jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	compileOnly 'org.projectlombok:lombok'
