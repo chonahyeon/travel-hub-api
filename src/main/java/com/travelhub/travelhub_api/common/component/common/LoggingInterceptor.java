@@ -19,6 +19,6 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex){
-        log.info("Request URI : {}, Response Status : {}", request.getRequestURI(), response.getStatus());
+        log.info("Request URI : {}, Method : {}, Response Status : {}", request.getRequestURI(), request.getMethod(), response.getStatus());
     }
 }

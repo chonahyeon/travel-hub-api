@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="/css/sing-up.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+    <div class="input-form-backgroud row">
+        <div class="input-form col-md-12 mx-auto">
+            <h4 class="mb-3">회원가입</h4>
+            <form class="validation-form" action="/travel/v1/auth/signup" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="validname">이름</label>
+                        <input th:if="${signUpInfo==null}" type="text" class="form-control" id="validname" name="name">
+
+                        <div th:if="${signUpInfo!=null}">
+                            <label for="name" hidden>이름(유효성 검증에 통과하지 못했을 때)</label>
+                            <input type="text" class="form-control" id="name" th:field="${signUpInfo.name}" name="name" th:value="${signUpInfo.name}">
+                            <span th:if="${#fields.hasErrors('signUpInfo.name')}" th:errors="*{signUpInfo.name}" class="error">오류메세지</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="nickName">닉네임</label>
+                        <input th:if="${signUpInfo==null}" type="text" class="form-control" id="nickName"
+                               name="nickName">
+
+                        <div th:if="${signUpInfo!=null}">
+                            <label for="validNickName" hidden>닉네임(유효성 검증에 통과하지 못했을 때)</label>
+                            <input type="text" class="form-control" th:field="${signUpInfo.nickName}" th:value="${signUpInfo.nickName}" id="validNickName" name="nickName">
+                            <span th:if="${#fields.hasErrors('signUpInfo.nickName')}" th:errors="*{signUpInfo.nickName}" class="error">오류메세지</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id">아이디</label>
+                    <input th:if="${signUpInfo==null}" type="text" class="form-control" id="id"
+                           name="id">
+
+                    <div th:if="${signUpInfo!=null}">
+                        <label for="validId" hidden>아이디(유효성 검증에 통과하지 못했을 때)</label>
+                        <input type="text" class="form-control" th:field="${signUpInfo.id}" th:value="${signUpInfo.id}"
+                               id="validId" name="id">
+                        <span th:if="${#fields.hasErrors('signUpInfo.id')}" th:errors="*{signUpInfo.id}" class="error">오류메세지</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for=validpassword>패스워드</label>
+                    <input th:if="${signUpInfo==null}" type="password" class="form-control" id="validpassword" name="password">
+                    <div th:if="${signUpInfo!=null}">
+                        <label for="password" hidden>패스워드(유효성 검증에 통과하지 못했을 때)</label>
+                        <input type="password" class="form-control" th:field="${signUpInfo.password}" th:value="${signUpInfo.password}"
+                               id="password" name="password">
+                        <span th:if="${#fields.hasErrors('signUpInfo.password')}" th:errors="*{signUpInfo.password}" class="error">오류메세지</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for=email>이메일</label>
+                    <input th:if="${signUpInfo==null}" type="email" class="form-control" id="email"
+                           name="email">
+
+                    <div th:if="${signUpInfo!=null}">
+                        <label for="validEmail" hidden>이메일(유효성 검증에 통과하지 못했을 때)</label>
+                        <input type="email" class="form-control" th:field="${signUpInfo.email}" th:value="${signUpInfo.email}"
+                               id="validEmail" name="email">
+                        <span th:if="${#fields.hasErrors('signUpInfo.email')}" th:errors="*{signUpInfo.email}" class="error">오류메세지</span>
+                    </div>
+                </div>
+
+                <div class="mb-4"></div>
+                <button class="btn btn-primary btn-lg btn-block" type="submit">가입 완료</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,20 +1,21 @@
 package com.travelhub.travelhub_api.service.auth;
 
-import java.util.Map;
-
+import com.travelhub.travelhub_api.data.dto.auth.OAuthUserDTO;
+import com.travelhub.travelhub_api.data.enums.common.Role;
+import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.travelhub.travelhub_api.data.dto.auth.OAuthUserDto;
-import com.travelhub.travelhub_api.data.enums.common.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.common.User;
-import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
+import java.util.Map;
+import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_GUEST;
 
 @Service
 @Slf4j
@@ -41,14 +42,19 @@ public class OAuthUserService extends DefaultOAuth2UserService {
         Map<String, Object> userProfile = oAuth2User.getAttributes();
         log.info("login code : {}, user info : {}", providerCode, userProfile);
 
-        OAuthUserDto userSession = OAuthUserDto.builder()
+        String usId = userProfile.get(userNameAttributeName).toString();
+        Optional<User> user = userRepository.findById(usId);
+
+        // db에 저장되어있으면 해당 Role 로 세팅.
+        Role usRole = user.map(User::getUsRole).orElse(ROLE_GUEST);
+
+        OAuthUserDTO loginUserDTO = OAuthUserDTO.builder()
                 .name(userNameAttributeName)
                 .attribute(userProfile)
-                .role(Role.ROLE_USER)
+                .role(usRole)
                 .build();
 
-        User saveUser = userSession.convert();
-        userRepository.save(saveUser);
-        return userSession;
+        user.orElseGet(() -> userRepository.save(loginUserDTO.convert()));
+        return loginUserDTO;
     }
 }

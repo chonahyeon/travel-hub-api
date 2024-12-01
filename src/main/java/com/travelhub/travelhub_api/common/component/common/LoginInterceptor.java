@@ -1,6 +1,6 @@
 package com.travelhub.travelhub_api.common.component.common;
 
-import com.travelhub.travelhub_api.data.dto.auth.LoginUser;
+import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -20,13 +20,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             String usId = authentication.getPrincipal().toString();
-            LoginUser.set(usId);
+            LoginUserDTO.set(usId);
         }
         return true;
     }
 
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex){
-        LoginUser.remove();
+        LoginUserDTO.remove();
     }
 }

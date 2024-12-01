@@ -1,7 +1,7 @@
 package com.travelhub.travelhub_api.service.auth;
 
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
-import com.travelhub.travelhub_api.data.dto.auth.LoginUserEventDto;
+import com.travelhub.travelhub_api.data.dto.auth.LoginUserEventDTO;
 import com.travelhub.travelhub_api.service.common.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,15 +25,18 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_ACCESS_TOKEN;
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_REFRESH_TOKEN;
+
 @Slf4j
 @Service
 public class JwtService {
 
-	private final RedisService<String, LoginUserEventDto> redisService;
+	private final RedisService<String, LoginUserEventDTO> redisService;
 	private final SecretKey key;
 	private final long accessTokenExpireTime;
 
-	public JwtService(@Value("${jwt.secret}") String key, RedisService<String, LoginUserEventDto> redisService, @Value("${jwt.expiration_time}") long accessTokenExpireTime) {
+	public JwtService(@Value("${jwt.secret}") String key, RedisService<String, LoginUserEventDTO> redisService, @Value("${jwt.expiration_time}") long accessTokenExpireTime) {
         this.redisService = redisService;
         byte[] decode = Base64.getDecoder().decode(key);
 		this.key = Keys.hmacShaKeyFor(decode);
@@ -46,8 +49,8 @@ public class JwtService {
 	 * @param token accessToken
 	 */
 	public void validUser(String usId, String token, boolean isRefresh) {
-		Optional<LoginUserEventDto> loginUserEventDto = redisService.get(usId);
-		LoginUserEventDto userEventDto = loginUserEventDto.orElseThrow(AuthException::new);
+		Optional<LoginUserEventDTO> loginUserEventDto = redisService.get(usId);
+		LoginUserEventDTO userEventDto = loginUserEventDto.orElseThrow(AuthException::new);
 
 		String compareToken = isRefresh ? userEventDto.getRefreshToken() : userEventDto.getAccessToken();
 		if (!compareToken.equals(token)) throw new AuthException();
@@ -55,31 +58,32 @@ public class JwtService {
 
 	/*
 	 * 인증된 사용자에 대해 토큰 정보 쿠키 할당 및 Redis 저장
+	 * 갱신 시, refresh 도 함께 갱신하는 Token Rotation Policy 적용
 	 */
-	public void setIssuedToken(HttpServletResponse response, String usId, String role, String token) {
+	public void setIssuedToken(HttpServletResponse response, String usId, String role) {
 		String accessToken = createToken(usId, role, false);
-		String refreshToken = token != null ? token : createToken(usId, role, true);
+		String refreshToken = createToken(usId, role, true);
 
 		// set cookie token info
-		ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+		ResponseCookie accessTokenCookie = ResponseCookie.from(AUTH_ACCESS_TOKEN, accessToken)
 				.httpOnly(true)
 				.secure(false)
 				.path("/")
 				.maxAge(Duration.of(1, ChronoUnit.HOURS))
 				.build();
 
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+		ResponseCookie refreshTokenCookie = ResponseCookie.from(AUTH_REFRESH_TOKEN, refreshToken)
 				.httpOnly(true)
 				.secure(false)
 				.path("/")
 				.maxAge(Duration.of(3, ChronoUnit.HOURS))
 				.build();
 
-		response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-		response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+		response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
 		// redis 에 사용자 정보 저장
-		LoginUserEventDto loginUserEventDto = LoginUserEventDto.builder()
+		LoginUserEventDTO loginUserEventDto = LoginUserEventDTO.builder()
 				.userId(usId)
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
@@ -90,9 +94,22 @@ public class JwtService {
 
 	/**
 	 * 로그아웃 시, 토큰 무효화 처리
+	 * Redis 삭제 처리 및 쿠키 만료 처리
 	 */
-	public void invalidateToken(String usId) {
-		redisService.delete(usId);
+	public void invalidateToken(HttpServletResponse response, String usId) {
+        ResponseCookie expireAccessToken = ResponseCookie.from(AUTH_ACCESS_TOKEN, "")
+                        .maxAge(0)
+				        .path("/")
+                        .build();
+
+        ResponseCookie expireRefreshToken = ResponseCookie.from(AUTH_REFRESH_TOKEN, "")
+                        .maxAge(0)
+				        .path("/")
+                        .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, expireAccessToken.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expireRefreshToken.toString());
+        redisService.delete(usId);
 	}
 
 	/**
@@ -133,7 +150,7 @@ public class JwtService {
 		String usRole = claims.get("usRole").toString();
 
 		validUser(usId, token, true);
-		setIssuedToken(response, usId, usRole, token);
+		setIssuedToken(response, usId, usRole);
 	}
 
 	/**
@@ -164,7 +181,7 @@ public class JwtService {
 	public Optional<String> findCookie(Cookie[] cookies, String key) {
 		return Arrays.stream(cookies)
 				.filter(cookie -> cookie.getName().equals(key))
-				.map(Object::toString)
+				.map(Cookie::getValue)
 				.findAny();
 	}
 }

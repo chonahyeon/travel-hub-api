@@ -35,6 +35,9 @@ public class SecurityConfiguration {
                 .requestMatchers("/error", "/favicon.ico");
     }
 
+    /*
+     * AntPathRequestMatcher 단순히 oauth 만 제외
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
        // 인증 범위 및 정책 설정
@@ -50,7 +53,8 @@ public class SecurityConfiguration {
                                 .requestMatchers(
                                         new AntPathRequestMatcher("/"),
                                         new AntPathRequestMatcher("/login/**"),
-                                        new AntPathRequestMatcher("/travel/v1/auth/refresh")
+                                        new AntPathRequestMatcher("/travel/v1/auth/**"),
+                                        new AntPathRequestMatcher("/home")
                                 )
                                 .permitAll()
                                 .anyRequest()

@@ -1,14 +1,16 @@
 package com.travelhub.travelhub_api.data.dto.auth;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
-public class LoginUserEventDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginUserEventDTO {
     private String userId;
     private String accessToken;
     private String refreshToken;
-
-    // todo : 여기서 모든 정보가 일치하는지 체크?
 }

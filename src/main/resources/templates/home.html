@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Hub 테스트 페이지</title>
+</head>
+<body>
+<h3>인증 테스트용</h3>
+<ul>
+    <li><a href="http://localhost:80/test">로그인 정보 출력</a></li>
+    <li><a href="http://localhost:80/login">로그인</a></li>
+    <li><a href="http://localhost:80/travel/v1/auth/logout">로그아웃</a></li>
+    <a href="#" onclick="document.getElementById('putForm').submit()">토큰 갱신</a>
+</ul>
+<form class id="putForm" method="post" th:action="@{/travel/v1/auth/renew}" style="display:none;">
+    <input type="hidden" name="_method" value="PUT">
+</form>
+</body>
+</html>

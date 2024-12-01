@@ -1,6 +1,6 @@
 package com.travelhub.travelhub_api.data.dto.auth;
 
-public class LoginUser {
+public class LoginUserDTO {
     private static final ThreadLocal<String> userThreadLocal = new ThreadLocal<>();
 
     public static void set(String usId) {

@@ -17,10 +17,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_USER;
 
 @Component
@@ -29,6 +31,19 @@ import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_USER;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+
+    /*
+     * 401일때 어떻게 할지..
+     */
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String[] excludePath = {
+                AUTH_LOGIN,
+                API_V1_AUTH + AUTH_SIGNUP
+        };
+        String path = request.getRequestURI();
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
