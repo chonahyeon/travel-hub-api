@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.common.component.auth;
 
+import com.travelhub.travelhub_api.common.util.CookieUtil;
 import com.travelhub.travelhub_api.service.auth.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 쿠키에 토큰이 있으면 복호화 진행. 없으면 oauth 로그인.
         if (Objects.nonNull(cookies)) {
-            Optional<String> accessToken = jwtService.findCookie(cookies, "accessToken");
+            Optional<String> accessToken = CookieUtil.findCookie(cookies, AUTH_ACCESS_TOKEN);
 
             // 유효한 토큰일때만 인증정보 세팅.
             if (accessToken.isPresent()) {

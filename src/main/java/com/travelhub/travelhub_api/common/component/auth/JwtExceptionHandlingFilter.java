@@ -33,7 +33,7 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            log.error("doFilterInternal() : 인증 오류", e);
+            log.error("doFilterInternal() : JWT 인증 오류", e);
             setResponse(response, e);
         }
     }
@@ -44,8 +44,10 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
         // 토큰 만료를 제외한 JWT 에러 일괄 처리
         if (e instanceof ExpiredJwtException) {
             codes = ErrorCodes.TOKEN_EXPIRE;
-        } else if (e instanceof SecurityException || e instanceof JwtException || e instanceof AuthException) {
-            codes = ErrorCodes.TOKEN_INVALID;
+        } else if (e instanceof SecurityException || e instanceof JwtException) {
+            codes = ErrorCodes.INVALID_USER;
+        } else if (e instanceof AuthException authException) {
+            codes = authException.getErrorCodes();
         }
 
         response.setStatus(UNAUTHORIZED.value());

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
+import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.INVALID_USER;
 import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_GUEST;
 
 @RequiredArgsConstructor
@@ -35,19 +36,25 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	@Override
 	public void onAuthenticationSuccess(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Authentication authentication) throws IOException {
-		OAuthUserDTO userInfo = (OAuthUserDTO) authentication.getPrincipal();
+		OAuthUserDTO oAuthUserDTO = (OAuthUserDTO) authentication.getPrincipal();
+		String usId = oAuthUserDTO.getUserId();
 
-		String usId = userInfo.getUserId();
-		User user = userRepository.findById(usId).orElseThrow(AuthException::new);
-		Role usRole = user.getUsRole();
+		User user = userRepository.findById(usId)
+				.orElseThrow(() -> new AuthException(INVALID_USER));
 
 		String redirectURI;
+		Role usRole = user.getUsRole();
+
+		/*
+		 * role 이 guest 인 경우는 회원가입을 하지않은 신규 유저이기 때문에 회원 가입 진행
+		 * 그 외에는 토큰 발급 진행
+		 */
 		if (ROLE_GUEST == usRole) {
 			HttpSession session = request.getSession();
 			session.setAttribute("usId", usId);
 			redirectURI = API_V1_AUTH + AUTH_SIGNUP;
 		} else {
-			jwtService.setIssuedToken(response, userInfo.getUserId(), userInfo.getRole().name());
+			jwtService.setIssuedToken(response, oAuthUserDTO.getUserId(), oAuthUserDTO.getRole().name());
 			redirectURI = HOME;
 		}
 
