@@ -21,7 +21,8 @@ public enum ErrorCodes {
      * request
      *   - contents, place, review
      */
-    PLACE_NOT_FOUND(NOT_FOUND, "REQ-001", "유효하지 않은 장소입니다.");
+    MISSING_PARAM(BAD_REQUEST, "REQ-001", "파라미터 누락입니다."),
+    PLACE_NOT_FOUND(NOT_FOUND, "REQ-002", "유효하지 않은 장소입니다.");
 
 
     private final HttpStatus status;

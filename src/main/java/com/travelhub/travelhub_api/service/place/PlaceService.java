@@ -5,6 +5,7 @@ import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesResponse;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
+import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +31,19 @@ public class PlaceService {
     @Value("${google.api-key}")
     private String apiKey;
 
-    public Page<TravelPlace> get(String name, Pageable pageable) {
-        Page<TravelPlace> places;
-
+    public Page<TravelPlace> get(String name, String type, Pageable pageable) {
+        Page<TravelPlace> places = null;
+        /*
+         * searchType
+         *  G = 일반 검색, R = 재검색
+         */
         try {
-            // elasticSearch 조회
-            places = travelRepository.findByPcNameContaining(name, pageable);
+            if (SearchType.G.toString().equalsIgnoreCase(type)) {
+                // 일반 검색인 경우에만, elasticSearch 조회
+                places = travelRepository.findByPcNameContaining(name, pageable);
+            }
 
-            if (places.isEmpty()) {
+            if (null == places || places.isEmpty()) {
                 // google place api 조회
                 List<TravelPlace> googlePlaces = getGooglePlaces(name);
                 // elasticSearch 저장
@@ -58,7 +64,7 @@ public class PlaceService {
     }
 
     private List<TravelPlace> getGooglePlaces(String name){
-        GooglePlacesResponse response = mapsClient.getPlaces(name, apiKey);
+        GooglePlacesResponse response = mapsClient.getPlaces(name, "ko", apiKey);
 
         List<TravelPlace> places = response.getResults().stream().map(result -> TravelPlace.builder()
                 .pcName(result.getName())

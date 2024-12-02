@@ -22,9 +22,10 @@ public class PlaceController {
 
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<TravelPlace>>> get(@RequestParam String name,
-                                                       Pageable pageable,
-                                                       PagedResourcesAssembler<TravelPlace> assembler) {
-
-        return ResponseEntity.ok(assembler.toModel(placeService.get(name, pageable)));
+                                                                    @RequestParam String type,
+                                                                    Pageable pageable,
+                                                                    PagedResourcesAssembler<TravelPlace> assembler) {
+        return ResponseEntity.ok(assembler.toModel(placeService.get(name, type, pageable)));
     }
+
 }

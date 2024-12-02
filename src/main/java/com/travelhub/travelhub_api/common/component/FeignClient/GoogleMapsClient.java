@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface GoogleMapsClient {
 
     @GetMapping(value = "${google.place-uri}")
-    GooglePlacesResponse getPlaces(@RequestParam("query") String query, @RequestParam("key") String key);
+    GooglePlacesResponse getPlaces(@RequestParam("query") String query, @RequestParam("language") String language, @RequestParam("key") String key);
 }
