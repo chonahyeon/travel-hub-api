@@ -1,6 +1,7 @@
 app:
   cron:
     reload: 0 * * * * *
+    refresh-place: 0 0 0 * * *
 spring:
   mvc:
     hiddenmethod:
@@ -28,6 +29,8 @@ spring:
       host: localhost
       port: 6379
 
+elastic:
+  place-index: dev_travel
 
 server:
   port: 80
