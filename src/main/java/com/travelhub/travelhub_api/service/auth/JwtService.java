@@ -3,6 +3,7 @@ package com.travelhub.travelhub_api.service.auth;
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
 import com.travelhub.travelhub_api.common.util.CookieUtil;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserEventDTO;
+import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.service.common.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,7 +26,7 @@ import java.util.Optional;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_ACCESS_TOKEN;
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_REFRESH_TOKEN;
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.INVALID_USER;
+import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.*;
 
 @Slf4j
 @Service
@@ -49,11 +50,11 @@ public class JwtService {
 	 */
 	public void validUser(String usId, String token, boolean isRefresh) {
 		Optional<LoginUserEventDTO> loginUserEventDto = redisService.get(usId);
-		LoginUserEventDTO userEventDto = loginUserEventDto.orElseThrow(() -> new AuthException(INVALID_USER));
+		LoginUserEventDTO userEventDto = loginUserEventDto.orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
 		String compareToken = isRefresh ? userEventDto.getRefreshToken() : userEventDto.getAccessToken();
 		if (!compareToken.equals(token)) {
-			throw new AuthException(INVALID_USER);
+			throw new AuthException(TOKEN_INVALID);
 		}
 	}
 
@@ -123,7 +124,7 @@ public class JwtService {
 	 */
 	public void renewToken(HttpServletResponse response, Cookie[] cookies) {
 		Optional<String> refreshToken = CookieUtil.findCookie(cookies, AUTH_REFRESH_TOKEN);
-		String token = refreshToken.orElseThrow(() -> new AuthException(INVALID_USER));
+		String token = refreshToken.orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
 		Claims claims = parseToken(token, true);
 		String usId = claims.get("usId").toString();
@@ -147,7 +148,7 @@ public class JwtService {
 					.parseClaimsJws(token)
 					.getBody();
 		} catch (ExpiredJwtException e) {
-			if (isRefresh) throw new AuthException(INVALID_USER);
+			if (isRefresh) throw new AuthException(TOKEN_INVALID);
 			else throw e;
 		}
 	}

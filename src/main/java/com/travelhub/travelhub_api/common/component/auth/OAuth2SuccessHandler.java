@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.INVALID_USER;
+import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.TOKEN_INVALID;
 import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_GUEST;
 
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		String usId = oAuthUserDTO.getUserId();
 
 		User user = userRepository.findById(usId)
-				.orElseThrow(() -> new AuthException(INVALID_USER));
+				.orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
 		String redirectURI;
 		Role usRole = user.getUsRole();

@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.*;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Component
@@ -43,9 +44,9 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
 
         // 토큰 만료를 제외한 JWT 에러 일괄 처리
         if (e instanceof ExpiredJwtException) {
-            codes = ErrorCodes.TOKEN_EXPIRE;
+            codes = TOKEN_EXPIRE;
         } else if (e instanceof SecurityException || e instanceof JwtException) {
-            codes = ErrorCodes.INVALID_USER;
+            codes = TOKEN_INVALID;
         } else if (e instanceof AuthException authException) {
             codes = authException.getErrorCodes();
         }

@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.TOKEN_INVALID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class UserService {
     @Transactional
     public void signUp(String usId, SignUpRequest request) {
         User user = userRepository.findById(usId)
-                .orElseThrow(AuthException::new);
+                .orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
         user.updateSignUpInfo(request);
         userRepository.save(user);
