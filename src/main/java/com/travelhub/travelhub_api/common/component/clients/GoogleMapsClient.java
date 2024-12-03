@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.common.component.FeignClient;
+package com.travelhub.travelhub_api.common.component.clients;
 
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesResponse;
 import org.springframework.cloud.openfeign.FeignClient;

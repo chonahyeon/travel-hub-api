@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.controller;
+package com.travelhub.travelhub_api.controller.place;
 
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.service.place.PlaceService;

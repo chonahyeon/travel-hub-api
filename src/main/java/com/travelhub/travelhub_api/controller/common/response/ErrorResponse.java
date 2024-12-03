@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.data.common;
+package com.travelhub.travelhub_api.controller.common.response;
 
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import lombok.Builder;

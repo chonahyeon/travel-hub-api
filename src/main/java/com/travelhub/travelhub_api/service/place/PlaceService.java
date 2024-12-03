@@ -1,6 +1,6 @@
 package com.travelhub.travelhub_api.service.place;
 
-import com.travelhub.travelhub_api.common.component.FeignClient.GoogleMapsClient;
+import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesResponse;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;

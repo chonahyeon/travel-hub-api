@@ -1,7 +1,7 @@
 package com.travelhub.travelhub_api.common.component.common;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
-import com.travelhub.travelhub_api.data.common.ErrorResponse;
+import com.travelhub.travelhub_api.controller.common.response.ErrorResponse;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;

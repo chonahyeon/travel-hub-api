@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.common.configuration;
+package com.travelhub.travelhub_api.common.configuration.data;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

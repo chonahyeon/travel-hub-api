@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.common.configuration;
+package com.travelhub.travelhub_api.common.configuration.data;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @Configuration
 @EnableElasticsearchRepositories
-public class ElasticSearchConfig extends ElasticsearchConfiguration {
+public class ElasticSearchConfiguration extends ElasticsearchConfiguration {
     @Value("${spring.elasticsearch.uris}")
     private String elasticUrl;
 

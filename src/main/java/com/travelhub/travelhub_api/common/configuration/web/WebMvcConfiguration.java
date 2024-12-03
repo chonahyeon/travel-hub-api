@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.common.configuration;
+package com.travelhub.travelhub_api.common.configuration.web;
 
 import com.travelhub.travelhub_api.common.component.common.LoggingInterceptor;
 import com.travelhub.travelhub_api.common.component.common.LoginInterceptor;

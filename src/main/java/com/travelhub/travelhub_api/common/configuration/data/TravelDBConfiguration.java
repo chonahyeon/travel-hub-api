@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.common.configuration;
+package com.travelhub.travelhub_api.common.configuration.data;
 
 import jakarta.persistence.EntityManagerFactory;
 
