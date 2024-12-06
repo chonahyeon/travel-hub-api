@@ -1,7 +1,7 @@
 package com.travelhub.travelhub_api.data.mysql.repository;
 
-import com.travelhub.travelhub_api.data.mysql.entity.Place;
+import com.travelhub.travelhub_api.data.mysql.entity.PlaceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PlaceRepository extends JpaRepository<Place, Long> {
+public interface PlaceRepository extends JpaRepository<PlaceEntity, Long> {
 }

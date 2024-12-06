@@ -13,6 +13,8 @@ public class TravelHubResource {
      * 인증
      */
     public static final String API_V1_AUTH = "/travel/v1/auth";
+    public static final String API_V1_REVIEW = "/travel/v1/review";
+
     public static final String AUTH_RENEW_TOKEN = "/renew";
     public static final String AUTH_LOGOUT = "/logout";
     public static final String AUTH_SIGNUP = "/signup";

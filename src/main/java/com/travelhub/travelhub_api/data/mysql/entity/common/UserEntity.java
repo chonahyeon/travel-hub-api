@@ -12,8 +12,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @AllArgsConstructor
 @Builder
 @ToString
-@DynamicUpdate
-public class User {
+public class UserEntity {
 
     @Id
     @Column(name = "us_id")

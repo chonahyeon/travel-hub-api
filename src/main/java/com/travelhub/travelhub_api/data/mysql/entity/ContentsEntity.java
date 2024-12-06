@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
+import com.travelhub.travelhub_api.data.mysql.entity.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Contents {
+public class ContentsEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +23,6 @@ public class Contents {
     @Column(name = "ct_text")
     private String ctText;
 
-    @Column(name = "ct_insert_date", nullable = false)
-    private LocalDateTime ctInsertDate;
-
-    @Column(name = "ct_update_date", nullable = false)
-    private LocalDateTime ctUpdateDate;
-
     @Column(name = "u_id", nullable = false)
     private String uId;
-
-
 }

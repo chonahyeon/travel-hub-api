@@ -3,7 +3,7 @@ package com.travelhub.travelhub_api.common.component.auth;
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
 import com.travelhub.travelhub_api.data.dto.auth.OAuthUserDTO;
 import com.travelhub.travelhub_api.data.enums.common.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.entity.common.UserEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
 import com.travelhub.travelhub_api.service.auth.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,11 +39,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		OAuthUserDTO oAuthUserDTO = (OAuthUserDTO) authentication.getPrincipal();
 		String usId = oAuthUserDTO.getUserId();
 
-		User user = userRepository.findById(usId)
+		UserEntity userEntity = userRepository.findById(usId)
 				.orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
 		String redirectURI;
-		Role usRole = user.getUsRole();
+		Role usRole = userEntity.getUsRole();
 
 		/*
 		 * role 이 guest 인 경우는 회원가입을 하지않은 신규 유저이기 때문에 회원 가입 진행

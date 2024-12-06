@@ -7,17 +7,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Tag {
+public class ContentsBookmarkEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "tg_idx")
-    private Long tgIdx;
+    @Column(name = "cb_idx", nullable = false)
+    private Long cb_idx;
 
-    @Column(name = "tg_name", nullable = false)
-    private String tgName;
+    @Column(name = "u_idx", nullable = false)
+    private Long u_idx;
 
     @Column(name = "ct_idx", nullable = false)
     private Long ctIdx;
-
 }

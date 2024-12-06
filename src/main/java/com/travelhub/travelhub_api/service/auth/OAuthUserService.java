@@ -2,7 +2,7 @@ package com.travelhub.travelhub_api.service.auth;
 
 import com.travelhub.travelhub_api.data.dto.auth.OAuthUserDTO;
 import com.travelhub.travelhub_api.data.enums.common.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.entity.common.UserEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +43,10 @@ public class OAuthUserService extends DefaultOAuth2UserService {
         log.info("login code : {}, user info : {}", providerCode, userProfile);
 
         String usId = userProfile.get(userNameAttributeName).toString();
-        Optional<User> user = userRepository.findById(usId);
+        Optional<UserEntity> user = userRepository.findById(usId);
 
         // db에 저장되어있으면 해당 Role 로 세팅.
-        Role usRole = user.map(User::getUsRole).orElse(ROLE_GUEST);
+        Role usRole = user.map(UserEntity::getUsRole).orElse(ROLE_GUEST);
 
         OAuthUserDTO loginUserDTO = OAuthUserDTO.builder()
                 .name(userNameAttributeName)

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Place {
+public class PlaceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

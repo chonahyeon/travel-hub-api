@@ -1,7 +1,7 @@
 package com.travelhub.travelhub_api.data.dto.auth;
 
 import com.travelhub.travelhub_api.data.enums.common.Role;
-import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.entity.common.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,8 +47,8 @@ public class OAuthUserDTO implements OAuth2User {
 	 * UseSessionDto -> User Entity
 	 * 이메일은 유효할때만 저장.
 	 */
-	public User convert() {
-		return User.builder()
+	public UserEntity convert() {
+		return UserEntity.builder()
 				.usId(attribute.get(this.name).toString())
 				.usName(attribute.get("name").toString())
 				.usRole(this.role)

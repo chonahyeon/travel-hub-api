@@ -2,7 +2,7 @@ package com.travelhub.travelhub_api.service.auth;
 
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
 import com.travelhub.travelhub_api.controller.auth.request.SignUpRequest;
-import com.travelhub.travelhub_api.data.mysql.entity.common.User;
+import com.travelhub.travelhub_api.data.mysql.entity.common.UserEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.common.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,10 @@ public class UserService {
      */
     @Transactional
     public void signUp(String usId, SignUpRequest request) {
-        User user = userRepository.findById(usId)
+        UserEntity userEntity = userRepository.findById(usId)
                 .orElseThrow(() -> new AuthException(TOKEN_INVALID));
 
-        user.updateSignUpInfo(request);
-        userRepository.save(user);
+        userEntity.updateSignUpInfo(request);
+        userRepository.save(userEntity);
     }
 }
