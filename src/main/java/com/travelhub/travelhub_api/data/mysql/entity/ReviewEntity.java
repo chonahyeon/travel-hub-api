@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@Table(name = "review")
 public class ReviewEntity extends BaseTimeEntity {
 
     @Id

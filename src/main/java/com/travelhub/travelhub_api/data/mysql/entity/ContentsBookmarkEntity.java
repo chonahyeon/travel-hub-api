@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(name = "contents_bookmark")
 public class ContentsBookmarkEntity {
 
     @Id

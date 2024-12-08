@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(name = "contents_place")
 public class ContentsPlaceEntity {
 
     @Id

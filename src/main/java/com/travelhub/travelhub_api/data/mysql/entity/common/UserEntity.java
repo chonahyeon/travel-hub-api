@@ -4,7 +4,6 @@ import com.travelhub.travelhub_api.controller.auth.request.SignUpRequest;
 import com.travelhub.travelhub_api.data.enums.common.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @Entity
@@ -12,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @AllArgsConstructor
 @Builder
 @ToString
+@Table(name = "user")
 public class UserEntity {
 
     @Id
