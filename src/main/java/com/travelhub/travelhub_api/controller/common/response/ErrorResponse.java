@@ -10,10 +10,10 @@ public class ErrorResponse {
     private String code;
     private String message;
 
-    public static ErrorResponse of(ErrorCodes errorCode) {
+    public static ErrorResponse of(ErrorCodes errorCode, Object... args) {
         return ErrorResponse.builder()
                 .code(errorCode.getCode())
-                .message(errorCode.getMessage())
+                .message(errorCode.formatMessage(args))
                 .build();
     }
 }
