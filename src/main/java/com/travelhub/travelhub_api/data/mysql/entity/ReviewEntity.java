@@ -20,7 +20,8 @@ public class ReviewEntity extends BaseTimeEntity {
     private Long rvIdx;
 
     @Column(name = "rv_score", nullable = false)
-    private Double rvScore;
+    @Builder.Default
+    private Double rvScore = 0.0;
 
     @Column(name = "rv_text", nullable = false)
     private String rvText;

@@ -22,4 +22,6 @@ public class TravelHubResource {
 
     public static final String AUTH_ACCESS_TOKEN = "accessToken";
     public static final String AUTH_REFRESH_TOKEN = "refreshToken";
+
+    public static final String LIST = "/list";
 }
