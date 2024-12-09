@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(name = "image")
 public class ImageEntity {
 
     @Id

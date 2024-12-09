@@ -21,7 +21,7 @@ public enum ErrorCodes {
      * request
      *   - contents, place, review
      */
-    MISSING_PARAM(BAD_REQUEST, "REQ-001", "파라미터 누락입니다."),
+    INVALID_PARAM(BAD_REQUEST, "REQ-001", "%s 의 값이 유효하지 않습니다."),
     PLACE_NOT_FOUND(NOT_FOUND, "REQ-002", "유효하지 않은 장소입니다.");
 
 
@@ -33,5 +33,9 @@ public enum ErrorCodes {
         this.status = status;
         this.code = code;
         this.message = message;
+    }
+
+    public String formatMessage(Object... args) {
+        return String.format(this.message, args);
     }
 }
