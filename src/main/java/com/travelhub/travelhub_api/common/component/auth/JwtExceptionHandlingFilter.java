@@ -6,6 +6,7 @@ import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -17,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.*;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Component
 @RequiredArgsConstructor
@@ -33,25 +33,29 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+            log.error("doFilterInternal() : JWT 만료", e);
+            setResponse(response, TOKEN_EXPIRE);
+        } catch (SecurityException | JwtException e) {
             log.error("doFilterInternal() : JWT 인증 오류", e);
-            setResponse(response, e);
+            setResponse(response, TOKEN_INVALID);
+        } catch (AuthException e) {
+            log.error("doFilterInternal() : JWT 인증 오류", e);
+            setResponse(response, e.getErrorCodes());
+        } catch (ServletException e) {
+            log.error("doFilterInternal() : 내부 오류", e);
+            setResponse(response, SERVER_ERROR);
         }
     }
 
-    private void setResponse(HttpServletResponse response, Exception e) throws IOException {
-        ErrorCodes codes = null;
-
-        // 토큰 만료를 제외한 JWT 에러 일괄 처리
-        if (e instanceof ExpiredJwtException) {
-            codes = TOKEN_EXPIRE;
-        } else if (e instanceof SecurityException || e instanceof JwtException) {
-            codes = TOKEN_INVALID;
-        } else if (e instanceof AuthException authException) {
-            codes = authException.getErrorCodes();
-        }
-
-        response.setStatus(UNAUTHORIZED.value());
+    /**
+     * 인증 에러별 응답 공통화
+     * @param response servlet response
+     * @param codes 에러코드
+     * @throws IOException
+     */
+    private void setResponse(HttpServletResponse response, ErrorCodes codes) throws IOException {
+        response.setStatus(codes.getStatus().value());
         response.getWriter().write(objectMapper.writeValueAsString(codes));
     }
 }
