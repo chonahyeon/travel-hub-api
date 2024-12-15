@@ -22,20 +22,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                           HttpStatusCode status,
                                                                           WebRequest request) {
         ErrorCodes errorCode = ErrorCodes.INVALID_PARAM;
-        String param = ex.getParameterName();
+
+        ErrorResponse response = ErrorResponse.builder()
+                .code(errorCode.getCode())
+                .message(String.format(errorCode.getMessage(), ex.getParameterName()))
+                .build();
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode, param));
+                .body(response);
     }
 
     // 상황에 맞는 에러 지정하여 응답
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
         ErrorCodes errorCode = ex.getErrorCode();
+
+        ErrorResponse response = ErrorResponse.builder()
+                .code(errorCode.getCode())
+                .message(ex.getMessage())
+                .build();
+
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponse.of(errorCode));
+                .body(response);
     }
+
+
 
 }

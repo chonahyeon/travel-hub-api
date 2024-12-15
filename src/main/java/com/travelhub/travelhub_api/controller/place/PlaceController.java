@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.API_V1_PLACES;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/places")
+@RequestMapping(API_V1_PLACES)
 public class PlaceController {
 
     private final PlaceService placeService;

@@ -24,4 +24,14 @@ public class TravelHubResource {
     public static final String AUTH_REFRESH_TOKEN = "refreshToken";
 
     public static final String LIST = "/list";
+
+    /*
+     * 장소
+     */
+    public static final String API_V1_PLACES = "/travel/v1/places";
+
+    /*
+     * 게시물
+     */
+    public static final String API_V1_CONTENTS = "/travel/v1/contents";
 }
