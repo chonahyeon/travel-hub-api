@@ -14,6 +14,7 @@ public class TravelHubResource {
      */
     public static final String API_V1_AUTH = "/travel/v1/auth";
     public static final String API_V1_REVIEW = "/travel/v1/review";
+    public static final String API_V1_IMAGE = "/travel/v1/image";
 
     public static final String AUTH_RENEW_TOKEN = "/renew";
     public static final String AUTH_LOGOUT = "/logout";
@@ -24,4 +25,7 @@ public class TravelHubResource {
     public static final String AUTH_REFRESH_TOKEN = "refreshToken";
 
     public static final String LIST = "/list";
+    public static final String LIST_USER = "/list-user";
+
+    public static final String UPLOAD = "/upload";
 }

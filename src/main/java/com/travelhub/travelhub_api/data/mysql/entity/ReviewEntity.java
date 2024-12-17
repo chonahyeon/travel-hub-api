@@ -28,9 +28,13 @@ public class ReviewEntity extends BaseTimeEntity {
     private String rvText;
 
     @Column(name = "u_id", nullable = false)
-    private String uId;
+    private String UId;
 
     @Column(name = "ct_idx")
     private Long ctIdx;
+
+    public void updateReview(String rvText) {
+        this.rvText = rvText;
+    }
 
 }

@@ -11,7 +11,9 @@ public record ReviewListResponse(
         Double rvScore,
         String rvText,
         String uId,
-        Long ctIdx
+        Long ctIdx,
+        String igUrls,
+        List<String> images
 ) {
 
     public static List<ReviewListResponse> ofList(List<ReviewEntity> reviews) {

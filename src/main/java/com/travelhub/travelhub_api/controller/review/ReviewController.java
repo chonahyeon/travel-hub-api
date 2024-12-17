@@ -2,14 +2,14 @@ package com.travelhub.travelhub_api.controller.review;
 
 import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
+import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import com.travelhub.travelhub_api.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.travelhub.travelhub_api.common.resource.TravelHubResource.API_V1_REVIEW;
-import static com.travelhub.travelhub_api.common.resource.TravelHubResource.LIST;
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 
 @RestController
 @RequestMapping(API_V1_REVIEW)
@@ -28,6 +28,16 @@ public class ReviewController {
     }
 
     /**
+     * 사용자 리뷰 목록 조회
+     * GET /travel/v1/review/list-user
+     */
+    @GetMapping(LIST_USER)
+    public List<ReviewListResponse> findReviewsByUser() {
+        String uId = LoginUserDTO.get();
+        return reviewService.findReviewsUser(uId);
+    }
+
+    /**
      * 리뷰 작성
      * POST /travel/v1/review
      * @param request request body
@@ -35,6 +45,15 @@ public class ReviewController {
     @PostMapping
     public void createReview(@RequestBody ReviewCreateRequest request) {
         reviewService.createReview(request);
+    }
+
+    /**
+     * 리뷰 업데이트
+     * PUT /travel/v1/review
+     */
+    @PutMapping
+    public void updateReview(@RequestParam Long rvIdx, @RequestBody ReviewCreateRequest request){
+        reviewService.updateReview(rvIdx, request);
     }
 
     /**

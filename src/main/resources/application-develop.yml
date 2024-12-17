@@ -8,26 +8,37 @@ spring:
       filter:
         enabled: true  # thymeleaf 설정
   jpa:
-#    generate-ddl: true
+    open-in-view: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      '[hibernate.format_sql]': true
   datasource:
+    url: jdbc:mysql://140.83.87.41:9500/travel_hub?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: superHMN
+    password: travelHubPwd140$!
     driver-class-name: com.mysql.cj.jdbc.Driver
-    travel-hub:
-      jdbc-url: jdbc:mysql://localhost:3306/travel_hub?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
-      username: test
-      password: test
-      connection-timeout: 60000
-      idle-timeout: 30000
-      max-lifetime: 420000
-      validation-timeout: 10000
-      maximum-pool-size: 1
-      minimum-idle: 1
-      pool-name: connectionPool_dev
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    travel-hub:
+#      jdbc-url: jdbc:mysql://localhost:3306/travel_hub?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+#      username: root
+#      password: Kenta00@
+#      connection-timeout: 60000
+#      idle-timeout: 30000
+#      max-lifetime: 420000
+#      validation-timeout: 10000
+#      maximum-pool-size: 1
+#      minimum-idle: 1
+#      pool-name: connectionPool_dev
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: 141.147.149.58
+      port: 9700
+      password: travelHubPwd
 
 elastic:
   place-index: dev_travel

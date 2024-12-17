@@ -2,6 +2,8 @@ package com.travelhub.travelhub_api.data.mysql.entity;
 
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Table(name = "image")
+@AllArgsConstructor
+@Builder
 public class ImageEntity {
 
     @Id
