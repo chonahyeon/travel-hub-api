@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.enums.common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -9,6 +10,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 
 @Getter
+@AllArgsConstructor
 public enum ErrorCodes {
     // server
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "SYS-001","서버 오류 발생. 관리자에게 문의바랍니다."),
@@ -28,14 +30,4 @@ public enum ErrorCodes {
     private final HttpStatus status;
     private final String code;
     private final String message;
-
-    ErrorCodes(HttpStatus status, String code, String message) {
-        this.status = status;
-        this.code = code;
-        this.message = message;
-    }
-
-    public String formatMessage(Object... args) {
-        return String.format(this.message, args);
-    }
 }

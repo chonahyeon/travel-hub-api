@@ -28,4 +28,14 @@ public class TravelHubResource {
     public static final String LIST_USER = "/list-user";
 
     public static final String UPLOAD = "/upload";
+
+    /*
+     * 장소
+     */
+    public static final String API_V1_PLACES = "/travel/v1/places";
+
+    /*
+     * 게시물
+     */
+    public static final String API_V1_CONTENTS = "/travel/v1/contents";
 }

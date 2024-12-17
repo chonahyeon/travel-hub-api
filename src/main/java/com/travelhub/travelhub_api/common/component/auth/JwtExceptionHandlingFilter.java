@@ -42,7 +42,7 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
         } catch (AuthException e) {
             log.error("doFilterInternal() : JWT 인증 오류", e);
             setResponse(response, e.getErrorCodes());
-        } catch (ServletException e) {
+        } catch (Exception e) {
             log.error("doFilterInternal() : 내부 오류", e);
             setResponse(response, SERVER_ERROR);
         }

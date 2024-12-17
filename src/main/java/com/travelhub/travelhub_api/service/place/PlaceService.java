@@ -2,9 +2,9 @@ package com.travelhub.travelhub_api.service.place;
 
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
-import com.travelhub.travelhub_api.data.dto.place.GooglePlacesResponse;
-import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
+import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import lombok.RequiredArgsConstructor;
@@ -54,17 +54,16 @@ public class PlaceService {
             }
         } catch (NoSuchElementException e) {
             log.warn("place not found. REQ = '{}'", name);
-            throw new CustomException(ErrorCodes.PLACE_NOT_FOUND);
+            throw new CustomException(ErrorCodes.INVALID_PARAM, name);
         } catch (Exception e) {
-            log.error("place search failed. ", e);
-            throw new CustomException(ErrorCodes.SERVER_ERROR);
+            log.error("places ");
         }
 
         return places;
     }
 
     private List<TravelPlace> getGooglePlaces(String name){
-        GooglePlacesResponse response = mapsClient.getPlaces(name, "ko", apiKey);
+        GooglePlacesDTO response = mapsClient.getPlaces(name, "ko", apiKey);
 
         List<TravelPlace> places = response.getResults().stream().map(result -> TravelPlace.builder()
                 .pcName(result.getName())
@@ -76,7 +75,7 @@ public class PlaceService {
                 .build()).collect(Collectors.toList());
 
         if (places.isEmpty()) {
-            throw new NoSuchElementException();
+
         }
 
         return places;
