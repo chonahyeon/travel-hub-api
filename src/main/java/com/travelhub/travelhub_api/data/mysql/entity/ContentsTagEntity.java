@@ -11,15 +11,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tag")
-public class TagEntity {
+@Table(name = "contents_tag")
+public class ContentsTagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ctg_idx")
+    private Long ctgIdx;
+
     @Column(name = "tg_idx")
     private Long tgIdx;
 
-    @Column(name = "tg_name", nullable = false)
-    private String tgName;
+    @Column(name = "ct_idx")
+    private Long ctIdx;
 
 }

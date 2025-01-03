@@ -2,12 +2,16 @@ package com.travelhub.travelhub_api.data.mysql.entity;
 
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "contents_place")
 public class ContentsPlaceEntity {
 
@@ -25,5 +29,8 @@ public class ContentsPlaceEntity {
 
     @Column(name = "pc_idx")
     private Long pcIdx;
+
+    @Column(name = "ct_idx")
+    private Long ctIdx;
 
 }
