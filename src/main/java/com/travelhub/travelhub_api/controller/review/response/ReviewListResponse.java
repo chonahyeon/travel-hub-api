@@ -12,7 +12,6 @@ public record ReviewListResponse(
         String rvText,
         String uId,
         Long ctIdx,
-        String igUrls,
         List<String> images
 ) {
 
@@ -28,7 +27,7 @@ public record ReviewListResponse(
                 .rvIdx(review.getRvIdx())
                 .rvScore(review.getRvScore())
                 .rvText(review.getRvText())
-                .uId(review.getUId())
+                .uId(review.getUsId())
                 .ctIdx(review.getCtIdx())
                 .build();
     }

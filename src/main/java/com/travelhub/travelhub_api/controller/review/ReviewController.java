@@ -51,8 +51,8 @@ public class ReviewController {
      * 리뷰 업데이트
      * PUT /travel/v1/review
      */
-    @PutMapping
-    public void updateReview(@RequestParam Long rvIdx, @RequestBody ReviewCreateRequest request){
+    @PutMapping("/{rvIdx}")
+    public void updateReview(@PathVariable Long rvIdx, @RequestBody ReviewCreateRequest request){
         reviewService.updateReview(rvIdx, request);
     }
 
@@ -61,8 +61,8 @@ public class ReviewController {
      * DELETE /travel/v1/review
      * @param rvIdx 리뷰 idx
      */
-    @DeleteMapping
-    public void deleteReview(@RequestParam Long rvIdx) {
+    @DeleteMapping("/{rvIdx}")
+    public void deleteReview(@PathVariable Long rvIdx) {
         reviewService.deleteReview(rvIdx);
     }
 }

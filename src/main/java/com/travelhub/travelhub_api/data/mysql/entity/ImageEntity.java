@@ -30,4 +30,6 @@ public class ImageEntity {
     @Column(name = "ig_url", nullable = false)
     private String igUrl;
 
+    @Column(name = "st_idx", nullable = false)
+    private Long stIdx;
 }

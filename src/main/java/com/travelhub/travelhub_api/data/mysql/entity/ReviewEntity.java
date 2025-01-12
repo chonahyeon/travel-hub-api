@@ -27,8 +27,8 @@ public class ReviewEntity extends BaseTimeEntity {
     @Column(name = "rv_text", nullable = false)
     private String rvText;
 
-    @Column(name = "u_id", nullable = false)
-    private String UId;
+    @Column(name = "us_id", nullable = false)
+    private String usId;
 
     @Column(name = "ct_idx")
     private Long ctIdx;

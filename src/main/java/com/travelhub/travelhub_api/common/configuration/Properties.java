@@ -85,6 +85,7 @@ public class Properties {
         log.info("===== config yaml reloading end. =====");
 
         lastModified = currentModified;
+        TravelHubResource.STORAGE_CONFIG = get("storage.config.path", String.class, null);
     }
 
     private Map<String, Object> flatten(Map<String, Object> map) {

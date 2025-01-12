@@ -16,14 +16,18 @@ public record ReviewCreateRequest(
         Long ctIdx,
 
         @NonNull
+        Double rvScore,
+
+        @NonNull
         List<ReviewImageRequest> imageUrls
 ) {
     public ReviewEntity ofReview() {
-        String uId = LoginUserDTO.get();
+        String usId = LoginUserDTO.get();
 
         return ReviewEntity.builder()
                 .rvText(this.rvText)
-                .UId(uId)
+                .usId(usId)
+                .rvScore(rvScore)
                 .ctIdx(this.ctIdx)
                 .build();
     }

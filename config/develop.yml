@@ -1,0 +1,3 @@
+storage:
+  config:
+    path: "~/.oci/config"

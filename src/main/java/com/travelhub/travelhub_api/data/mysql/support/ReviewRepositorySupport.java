@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
+import com.travelhub.travelhub_api.data.dto.review.ReviewDTO;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,16 +22,16 @@ public class ReviewRepositorySupport {
 
     public void findReviews(Long ctIdx) {
         // todo : 수정
-        List<ReviewListResponse> reviews = queryFactory
+        List<ReviewDTO> reviews = queryFactory
                 .select(
                         Projections.fields(
-                                ReviewListResponse.class,
+                                ReviewDTO.class,
                                 reviewEntity.rvIdx,
                                 reviewEntity.rvScore,
                                 reviewEntity.rvText,
-                                reviewEntity.UId,
+                                reviewEntity.usId,
                                 reviewEntity.ctIdx,
-                                Expressions.stringTemplate("group_concat({0})", imageEntity.igUrl).as("images")
+                                Expressions.stringTemplate("group_concat({0})", imageEntity.igUrl).as("rawImages")
                         )
                 )
                 .from(reviewEntity)
@@ -46,4 +47,6 @@ public class ReviewRepositorySupport {
                 .fetch();
 
     }
+
+
 }

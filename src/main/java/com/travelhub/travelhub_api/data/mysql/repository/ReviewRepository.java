@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     List<ReviewEntity> findByCtIdx(Long ctIdx);
-    Boolean existsByRvIdxAndUId(Long rvIdx, String uId);
     List<ReviewEntity> findByUId(String uId);
+    Optional<ReviewEntity> findByUIdAndRvIdx(String uId, Long rvIdx);
 }

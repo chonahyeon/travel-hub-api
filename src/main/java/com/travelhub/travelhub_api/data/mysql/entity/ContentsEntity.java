@@ -24,4 +24,8 @@ public class ContentsEntity extends BaseTimeEntity {
 
     @Column(name = "u_id", nullable = false)
     private String uId;
+
+    public void updateScore(Double score) {
+        this.ctScore = score;
+    }
 }
