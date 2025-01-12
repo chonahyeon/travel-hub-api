@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "country")
+@Entity
+@Table(name = "country")
 public class CountryEntity {
 
     @Id

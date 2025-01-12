@@ -7,7 +7,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "storage")
+@Entity
+@Table(name = "storage")
 public class StorageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

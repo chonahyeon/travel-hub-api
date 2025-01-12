@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "city")
+@Entity
+@Table(name = "city")
 public class CityEntity {
     @Id
     @Column(name = "cit_idx")
