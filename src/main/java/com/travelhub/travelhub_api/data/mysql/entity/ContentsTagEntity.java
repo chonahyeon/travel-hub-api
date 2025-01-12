@@ -1,13 +1,18 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.*;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "contents_tag")
+@Table(name = "contents_tag")
+@Entity
 public class ContentsTagEntity {
 
     @Id
