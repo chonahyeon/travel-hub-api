@@ -20,9 +20,6 @@ public class ContentsBookmarkEntity {
     private Long cbidx;
 
     @Column(name = "us_id", nullable = false)
-    private String us_id;
-
-    @Column(name = "us_id", nullable = false)
     private String usId;
 
     @Column(name = "ct_idx", nullable = false)

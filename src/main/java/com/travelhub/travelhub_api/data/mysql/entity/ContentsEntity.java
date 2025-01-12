@@ -37,9 +37,6 @@ public class ContentsEntity extends BaseTimeEntity {
     @Column(name = "ct_view_count", nullable = false)
     private Long ctViewCount;
 
-    @Column(name = "us_id", nullable = false)
-    private String usId;
-
     public void update(ContentsRequest request) {
         this.ctTitle = request.title();
         if (!request.text().isBlank()) {
