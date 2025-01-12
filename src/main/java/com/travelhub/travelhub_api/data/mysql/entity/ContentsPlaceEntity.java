@@ -26,4 +26,6 @@ public class ContentsPlaceEntity {
     @Column(name = "pc_idx")
     private Long pcIdx;
 
+    @Column(name = "ct_idx")
+    private Long ctIdx;
 }

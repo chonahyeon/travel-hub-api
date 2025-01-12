@@ -12,11 +12,11 @@ public record ReviewCreateRequest(
         Long ctIdx
 ) {
     public ReviewEntity ofEntity() {
-        String uId = LoginUserDTO.get();
+        String usId = LoginUserDTO.get();
 
         return ReviewEntity.builder()
                 .rvText(this.rvText)
-                .uId(uId)
+                .usId(usId)
                 .ctIdx(this.ctIdx)
                 .build();
     }

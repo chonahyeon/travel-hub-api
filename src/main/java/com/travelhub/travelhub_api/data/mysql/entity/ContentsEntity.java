@@ -22,6 +22,10 @@ public class ContentsEntity extends BaseTimeEntity {
     @Column(name = "ct_text")
     private String ctText;
 
-    @Column(name = "u_id", nullable = false)
-    private String uId;
+    @Column(name = "us_id", nullable = false)
+    private String usId;
+
+    @Column(name = "ct_view_count", nullable = false)
+    private Long ctViewCount;
+
 }

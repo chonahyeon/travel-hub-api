@@ -18,7 +18,4 @@ public class TagEntity {
     @Column(name = "tg_name", nullable = false)
     private String tgName;
 
-    @Column(name = "ct_idx", nullable = false)
-    private Long ctIdx;
-
 }

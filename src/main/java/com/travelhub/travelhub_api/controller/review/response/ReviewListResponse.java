@@ -10,7 +10,7 @@ public record ReviewListResponse(
         Long rvIdx,
         Double rvScore,
         String rvText,
-        String uId,
+        String usId,
         Long ctIdx
 ) {
 
@@ -26,7 +26,7 @@ public record ReviewListResponse(
                 .rvIdx(review.getRvIdx())
                 .rvScore(review.getRvScore())
                 .rvText(review.getRvText())
-                .uId(review.getUId())
+                .usId(review.getUsId())
                 .ctIdx(review.getCtIdx())
                 .build();
     }
