@@ -2,14 +2,19 @@ package com.travelhub.travelhub_api.data.mysql.entity;
 
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
+@Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "storage")
 public class StorageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "st_idx")
     private Long stIdx;
 
     @Column(name = "st_name")

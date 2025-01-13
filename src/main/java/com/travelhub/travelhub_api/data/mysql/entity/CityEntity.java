@@ -5,24 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.*;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "contents_tag")
 @Entity
-public class ContentsTagEntity {
-
+@Table(name = "city")
+public class CityEntity {
     @Id
+    @Column(name = "cit_idx")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ctg_idx")
-    private Long ctgIdx;
+    Long citIdx;
 
-    @Column(name = "ct_idx")
-    private Long ctIdx;
+    @Column(name = "cnt_idx")
+    Long cntIdx;
 
-    @Column(name = "tg_idx")
-    private Long tgIdx;
+    @Column(name = "cit_name")
+    String citName;
 }

@@ -37,4 +37,10 @@ public class PlaceEntity {
     @Column(name = "pc_id")
     private String pcId;
 
+    @Column(name = "pc_description")
+    private String pcDescription;
+
+    @Column(name = "cit_idx")
+    private Long citIdx;
+
 }
