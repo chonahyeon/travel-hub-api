@@ -20,7 +20,7 @@ public class ImageEntity {
     @Column(name = "ig_idx")
     private Long igIdx;
 
-    @Column(name = "idx", nullable = false)
+    @Column(name = "idx", nullable = true)
     private Long idx;
 
     @Enumerated(EnumType.STRING)
@@ -29,6 +29,9 @@ public class ImageEntity {
 
     @Column(name = "ig_url", nullable = false)
     private String igUrl;
+
+    @Column(name = "ig_path", nullable = false)
+    private String igPath;
 
     @Column(name = "st_idx", nullable = false)
     private Long stIdx;

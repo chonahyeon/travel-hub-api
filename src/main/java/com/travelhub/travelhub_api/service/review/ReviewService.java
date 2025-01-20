@@ -39,7 +39,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public List<ReviewListResponse> findReviewsUser(String uId) {
-        List<ReviewEntity> userReviews = reviewRepository.findByUId(uId);
+        List<ReviewEntity> userReviews = reviewRepository.findByUsId(uId);
         return ReviewListResponse.ofList(userReviews);
     }
 
@@ -67,7 +67,7 @@ public class ReviewService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateReview(Long rvIdx, ReviewCreateRequest request) {
         String uId = LoginUserDTO.get();
-        ReviewEntity reviewEntity = reviewRepository.findByUIdAndRvIdx(uId, rvIdx)
+        ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
         reviewEntity.updateReview(request.rvText());
@@ -101,7 +101,7 @@ public class ReviewService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteReview(Long rvIdx) {
         String uId = LoginUserDTO.get();
-        ReviewEntity reviewEntity = reviewRepository.findByUIdAndRvIdx(uId, rvIdx)
+        ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
         // delete image and review

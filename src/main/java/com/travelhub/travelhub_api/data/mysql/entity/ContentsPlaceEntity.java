@@ -33,4 +33,9 @@ public class ContentsPlaceEntity {
     @Column(name = "ct_idx")
     private Long ctIdx;
 
+    @Column(name = "ct_text")
+    private String ctText;
+
+    @Column(name = "ig_idx")
+    private Long igIdx;
 }
