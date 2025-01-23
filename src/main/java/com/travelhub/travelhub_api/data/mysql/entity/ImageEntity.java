@@ -20,15 +20,12 @@ public class ImageEntity {
     @Column(name = "ig_idx")
     private Long igIdx;
 
-    @Column(name = "idx", nullable = true)
+    @Column(name = "idx")
     private Long idx;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ig_type", nullable = false)
     private ImageType igType;
-
-    @Column(name = "ig_url", nullable = false)
-    private String igUrl;
 
     @Column(name = "ig_path", nullable = false)
     private String igPath;

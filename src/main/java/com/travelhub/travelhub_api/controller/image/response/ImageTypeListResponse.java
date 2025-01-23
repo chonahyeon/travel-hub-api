@@ -16,18 +16,20 @@ public record ImageTypeListResponse(
         Long stIdx
 ) {
 
-    public List<ImageTypeListResponse> ofList(List<ImageEntity> imageEntities) {
+    public static List<ImageTypeListResponse> ofList(List<ImageEntity> imageEntities, String domain) {
         return imageEntities.stream()
-                .map(ImageTypeListResponse::of)
+                .map(imageEntity -> of(imageEntity, domain))
                 .toList();
     }
 
-    public static ImageTypeListResponse of(ImageEntity imageEntity) {
+    public static ImageTypeListResponse of(ImageEntity imageEntity, String domain) {
+        String imageUrl = domain + imageEntity.getIgPath();
+
         return ImageTypeListResponse.builder()
                 .igIdx(imageEntity.getIgIdx())
                 .idx(imageEntity.getIdx())
                 .igType(imageEntity.getIgType())
-                .igUrl(imageEntity.getIgUrl())
+                .igUrl(imageUrl)
                 .igPath(imageEntity.getIgPath())
                 .stIdx(imageEntity.getStIdx())
                 .build();
