@@ -33,6 +33,7 @@ public class TravelHubResource {
      * 스토리지
      */
     public static String STORAGE_CONFIG;
+    public static final String STORAGE_DOMAIN_KEY = "domain";
 
     /*
      * 장소

@@ -21,10 +21,13 @@ public enum ErrorCodes {
 
     /*
      * request
-     *   - contents, place, review
+     *   - contents(0), place(1), review(2), image(3), storage(4)
      */
     INVALID_PARAM(BAD_REQUEST, "REQ-001", "%s 의 값이 유효하지 않습니다."),
-    PLACE_NOT_FOUND(NOT_FOUND, "REQ-002", "유효하지 않은 장소입니다.");
+    PLACE_NOT_FOUND(NOT_FOUND, "REQ-002", "유효하지 않은 장소입니다."),
+    STORAGE_NOT_FOUND(NOT_FOUND, "REQ-400", "스토리지 정보가 없습니다.")
+    ;
+
 
 
     private final HttpStatus status;
