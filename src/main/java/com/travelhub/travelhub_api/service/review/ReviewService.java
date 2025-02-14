@@ -2,11 +2,10 @@ package com.travelhub.travelhub_api.service.review;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest;
-import com.travelhub.travelhub_api.controller.review.request.ReviewImageRequest;
+import com.travelhub.travelhub_api.controller.review.response.ReviewCreateResponse;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import com.travelhub.travelhub_api.data.mysql.entity.ContentsEntity;
-import com.travelhub.travelhub_api.data.mysql.entity.ImageEntity;
 import com.travelhub.travelhub_api.data.mysql.entity.ReviewEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.ContentsRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.ImageRepository;
@@ -28,8 +27,8 @@ import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.INVALID_P
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ImageRepository imageRepository;
     private final ContentsRepository contentsRepository;
+    private final ImageRepository imageRepository;
 
     @Transactional(readOnly = true)
     public List<ReviewListResponse> findReviews(Long ctIdx) {
@@ -44,51 +43,40 @@ public class ReviewService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createReview(ReviewCreateRequest request) {
+    public ReviewCreateResponse createReview(ReviewCreateRequest request) {
+        ContentsEntity contents = contentsRepository.findById(request.ctIdx())
+                .orElseThrow(() -> new CustomException(INVALID_PARAM, "ctIdx"));
+
         // 리뷰 저장
         ReviewEntity reviewEntity = request.ofReview();
         ReviewEntity save = reviewRepository.save(reviewEntity);
 
         // 컨텐츠 리뷰 점수 업데이트
-        Long ctIdx = request.ctIdx();
-        updateReviewScore(ctIdx);
+        updateReviewScore(contents);
 
-        // 이미지 저장
-        Long rvIdx = save.getRvIdx();
-        List<ReviewImageRequest> reviewImageRequests = request.imageUrls();
-
-        List<ImageEntity> images = reviewImageRequests.stream()
-                .map(url -> request.ofImage(rvIdx, url.igUrl()))
-                .toList();
-
-        imageRepository.saveAll(images);
+        return ReviewCreateResponse.builder()
+                .rvIdx(save.getRvIdx())
+                .build();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateReview(Long rvIdx, ReviewCreateRequest request) {
         String uId = LoginUserDTO.get();
+
+        ContentsEntity contents = contentsRepository.findById(request.ctIdx())
+                .orElseThrow(() -> new CustomException(INVALID_PARAM, "ctIdx"));
+
         ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
-        reviewEntity.updateReview(request.rvText());
+        reviewEntity.updateReview(request.rvText(), request.rvScore());
 
         // update score
-        Long ctIdx = request.ctIdx();
-        updateReviewScore(ctIdx);
-
-        List<ReviewImageRequest> reviewImageRequests = request.imageUrls();
-        List<ImageEntity> images = reviewImageRequests.stream()
-                .map(image -> request.ofImage(rvIdx, image.igUrl()))
-                .toList();
-
-        imageRepository.saveAll(images);
+        updateReviewScore(contents);
     }
 
-    private void updateReviewScore(Long ctIdx) {
-        ContentsEntity content = contentsRepository.findById(ctIdx)
-                .orElseThrow(() -> new CustomException(INVALID_PARAM, "ctIdx"));
-
-        List<ReviewEntity> contentReviews = reviewRepository.findByCtIdx(ctIdx);
+    private void updateReviewScore(ContentsEntity content) {
+        List<ReviewEntity> contentReviews = reviewRepository.findByCtIdx(content.getCtIdx());
 
         double scores = contentReviews.stream()
                 .mapToDouble(ReviewEntity::getRvScore)
@@ -101,6 +89,7 @@ public class ReviewService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteReview(Long rvIdx) {
         String uId = LoginUserDTO.get();
+
         ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
@@ -108,8 +97,8 @@ public class ReviewService {
         reviewRepository.deleteById(rvIdx);
         imageRepository.deleteByIdxAndIgType(rvIdx, RV);
 
+        ContentsEntity contents = contentsRepository.findById(reviewEntity.getCtIdx()).get();
         // update score
-        Long ctIdx = reviewEntity.getCtIdx();
-        updateReviewScore(ctIdx);
+        updateReviewScore(contents);
     }
 }
