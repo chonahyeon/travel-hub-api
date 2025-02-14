@@ -2,7 +2,6 @@ package com.travelhub.travelhub_api.controller.image;
 
 import com.travelhub.travelhub_api.controller.image.request.ImageCreateRequest;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
-import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.service.image.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

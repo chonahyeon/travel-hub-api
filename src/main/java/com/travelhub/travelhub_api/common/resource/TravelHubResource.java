@@ -48,4 +48,9 @@ public class TravelHubResource {
      * 게시물
      */
     public static final String API_V1_CONTENTS = "/travel/v1/contents";
+
+    /*
+     * 태그
+     */
+    public static final String API_V1_TAGS = "/travel/v1/tags";
 }

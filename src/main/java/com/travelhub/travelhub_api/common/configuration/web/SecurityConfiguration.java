@@ -36,7 +36,8 @@ public class SecurityConfiguration {
                         "/travel/v1/image/**",
                         "/travel/v1/places/**",
                         "/travel/v1/tags/**",
-                        "/travel/v1/contents/**");
+                        "/travel/v1/contents/**",
+                        "/travel/v1/tags/**");
     }
 
     /*
