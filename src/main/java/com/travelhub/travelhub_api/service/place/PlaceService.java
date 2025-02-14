@@ -2,11 +2,15 @@ package com.travelhub.travelhub_api.service.place;
 
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
+import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.mysql.support.PlaceRepositorySuppport;
+import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +32,8 @@ public class PlaceService {
 
     private final GoogleMapsClient mapsClient;
     private final TravelRepository travelRepository;
+    private final PlaceRepositorySuppport placeRepositorySuppport;
+    private final StorageService storageService;
 
     @Value("${google.api-key}")
     private String apiKey;
@@ -79,6 +86,13 @@ public class PlaceService {
         }
 
         return places;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MainPlaceResponse> findMainPlaces() {
+        List<MainPlaceListDTO> mainPlaces = placeRepositorySuppport.findMainPlaces();
+        String domain = storageService.getImageDomain();
+        return MainPlaceResponse.ofListDTO(mainPlaces, domain);
     }
 
     private Page<TravelPlace> paginateGooglePlaces(List<TravelPlace> places, Pageable pageable) {
