@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.service.image;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.image.request.ImageCreateRequest;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
 import com.travelhub.travelhub_api.data.dto.image.BestImageListDTO;
 import com.travelhub.travelhub_api.data.enums.ImageType;
@@ -47,18 +48,19 @@ public class ImageService {
      * 이미지 업로드 진행
      *
      * @param image     멀티 파트
-     * @param imageType 이미지 타입 (RV, CT)
+     * @param request 이미지 타입 (RV, CT) / 매핑 idx
      */
     @Transactional
-    public void uploadImage(MultipartFile image, ImageType imageType) {
-        String randomPath = getRandomPath(imageType);
+    public void uploadImage(MultipartFile image, ImageCreateRequest request) {
+        String randomPath = getRandomPath(request.igType());
         // 업로드
         storageService.uploadFile(randomPath, image);
         // 이미지 정보 저장
         ImageEntity imageEntity = ImageEntity.builder()
-                .igType(imageType)
+                .igType(request.igType())
                 .igPath(randomPath)
                 .stIdx(1L)
+                .idx(request.idx())
                 .build();
         imageRepository.save(imageEntity);
     }
