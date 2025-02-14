@@ -40,7 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String[] excludePath = {
                 AUTH_LOGIN,
-                API_V1_AUTH + AUTH_SIGNUP
+                API_V1_AUTH + AUTH_SIGNUP,
+                API_V1_IMAGE
         };
         String path = request.getRequestURI();
         return Arrays.stream(excludePath).anyMatch(path::startsWith);

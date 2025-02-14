@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.controller.place;
 
+import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.service.place.PlaceService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.API_V1_PLACES;
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.MAIN;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,4 +34,12 @@ public class PlaceController {
         return ResponseEntity.ok(assembler.toModel(placeService.get(name, type, pageable)));
     }
 
+    /**
+     * 메인 장소 목록 조회
+     * GET /travel/v1/places/main
+     */
+    @GetMapping(MAIN)
+    public List<MainPlaceResponse> findMainPlaces() {
+        return placeService.findMainPlaces();
+    }
 }
