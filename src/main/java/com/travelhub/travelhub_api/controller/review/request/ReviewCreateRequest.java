@@ -36,7 +36,7 @@ public record ReviewCreateRequest(
         return ImageEntity.builder()
                 .idx(rvIdx)
                 .igType(ImageType.RV)
-                .igUrl(url)
+                .igPath(url)
                 .build();
     }
 }

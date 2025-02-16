@@ -31,7 +31,7 @@ public class ReviewRepositorySupport {
                                 reviewEntity.rvText,
                                 reviewEntity.usId,
                                 reviewEntity.ctIdx,
-                                Expressions.stringTemplate("group_concat({0})", imageEntity.igUrl).as("rawImages")
+                                Expressions.stringTemplate("group_concat({0})", imageEntity.igPath).as("rawImages")
                         )
                 )
                 .from(reviewEntity)

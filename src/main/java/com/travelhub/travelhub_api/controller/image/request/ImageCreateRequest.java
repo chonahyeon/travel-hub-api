@@ -12,7 +12,7 @@ public record ImageCreateRequest(
         return ImageEntity.builder()
                 .idx(this.ctIdx)
                 .igType(igType)
-                .igUrl(igUrl)
+                .igPath(igUrl)
                 .build();
     }
 }

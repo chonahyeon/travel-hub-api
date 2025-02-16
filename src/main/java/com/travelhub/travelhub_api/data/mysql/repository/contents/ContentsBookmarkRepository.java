@@ -1,4 +1,4 @@
-package com.travelhub.travelhub_api.data.mysql.repository;
+package com.travelhub.travelhub_api.data.mysql.repository.contents;
 
 import com.travelhub.travelhub_api.data.mysql.entity.ContentsBookmarkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -21,10 +21,13 @@ public enum ErrorCodes {
 
     /*
      * request
-     *   - contents(0), place(1), review(2), image(3), storage(4)
+     *   - common(0), place(1), review(2), image(3), storage(4), contents(5)
      */
     INVALID_PARAM(BAD_REQUEST, "REQ-001", "%s 의 값이 유효하지 않습니다."),
-    PLACE_NOT_FOUND(NOT_FOUND, "REQ-002", "유효하지 않은 장소입니다."),
+    PLACE_NOT_FOUND(NOT_FOUND, "REQ-100", "유효하지 않은 장소입니다."),
+    PLACE_CITY_NOT_FOUND(NOT_FOUND, "REQ-101", "%s 장소의 도시 정보가 없습니다."),
+    CITY_NOT_FOUND(NOT_FOUND, "REQ-102", "유효하지 않은 도시입니다."),
+    CONTENTS_NOT_FOUND(NOT_FOUND, "REQ-500", "유효하지 않은 게시글입니다."),
     STORAGE_NOT_FOUND(NOT_FOUND, "REQ-400", "스토리지 정보가 없습니다.")
     ;
 

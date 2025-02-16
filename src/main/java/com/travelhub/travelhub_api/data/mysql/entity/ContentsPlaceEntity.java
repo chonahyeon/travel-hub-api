@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
+import com.travelhub.travelhub_api.data.dto.contents.ContentsPlaceWriterDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,15 +28,21 @@ public class ContentsPlaceEntity {
     @Column(name = "cp_order")
     private Integer cpOrder;
 
+    @Column(name = "cp_text")
+    private String cpText;
+
     @Column(name = "pc_idx")
     private Long pcIdx;
 
     @Column(name = "ct_idx")
     private Long ctIdx;
 
-    @Column(name = "ct_text")
-    private String ctText;
-
     @Column(name = "ig_idx")
     private Long igIdx;
+
+    public void update(ContentsPlaceWriterDto request, Long igIdx) {
+        this.cpOrder = request.cpOrder();;
+        this.cpText = request.text();
+        this.igIdx = igIdx;
+    }
 }
