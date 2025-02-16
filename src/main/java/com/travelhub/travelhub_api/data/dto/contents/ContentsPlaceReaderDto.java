@@ -18,7 +18,7 @@ public record ContentsPlaceReaderDto(
         Double pcLat,
         String pcName,
         Double pcRating,
-        String igUrl
+        String igPath
 ) {
     public ContentsDto ofContents() {
         return ContentsDto.builder()
@@ -42,7 +42,7 @@ public record ContentsPlaceReaderDto(
                 .pcLat(this.pcLat)
                 .pcName(this.pcName)
                 .pcRating(this.pcRating)
-                .igUrl(this.igUrl)
+                .igPath(this.igPath)
                 .build();
     }
 }

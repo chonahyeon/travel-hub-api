@@ -14,6 +14,6 @@ public record PlaceDto(
         Double pcLat,
         String pcName,
         Double pcRating,
-        String igUrl
+        String igPath
 ) {
 }
