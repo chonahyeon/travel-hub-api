@@ -2,7 +2,7 @@ package com.travelhub.travelhub_api.service.tag;
 
 import com.travelhub.travelhub_api.controller.tag.response.TagListResponse;
 import com.travelhub.travelhub_api.data.dto.tag.TagListDTO;
-import com.travelhub.travelhub_api.data.mysql.repository.TagRepository;
+import com.travelhub.travelhub_api.data.mysql.repository.tag.TagRepository;
 import com.travelhub.travelhub_api.data.mysql.support.ContentsTagRepositorySupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

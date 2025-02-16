@@ -1,8 +1,7 @@
 package com.travelhub.travelhub_api.controller.place;
 
-import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
-import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
+import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.service.place.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
