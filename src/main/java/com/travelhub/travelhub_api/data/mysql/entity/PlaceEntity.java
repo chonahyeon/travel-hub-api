@@ -43,4 +43,8 @@ public class PlaceEntity {
     @Column(name = "cit_idx")
     private Long citIdx;
 
+    public void addIdx(Long pcIdx) {
+        this.pcIdx = pcIdx;
+    }
+
 }

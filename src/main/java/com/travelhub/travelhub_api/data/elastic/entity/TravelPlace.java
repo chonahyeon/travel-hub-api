@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.data.elastic.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
+import com.travelhub.travelhub_api.data.mysql.entity.PlaceEntity;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
@@ -12,11 +13,33 @@ import org.springframework.data.elasticsearch.annotations.Document;
 public class TravelPlace {
     @Id
     private String pcId;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long pcIdx;
     private String pcName;
     private String pcAddress;
     private Double pcRating;
     private double pcLng;
     private double pcLat;
+
+    public PlaceResponse ofPlaceResponse() {
+        return PlaceResponse.builder()
+                .pcId(this.pcId)
+                .pcName(this.pcName)
+                .pcAddress(this.pcAddress)
+                .pcRating(this.pcRating)
+                .pcLng(this.pcLng)
+                .pcLat(this.pcLat)
+                .build();
+    }
+
+    public PlaceEntity ofPlaceEntity(Long citIdx) {
+        // Todo 장소 정보 추가 필요
+        return PlaceEntity.builder()
+                .pcName(this.pcName)
+                .pcAddress(this.pcAddress)
+                .pcRating(this.pcRating)
+                .pcLng(this.pcLng)
+                .pcLat(this.pcLat)
+                .pcId(this.pcId)
+                .citIdx(citIdx)
+                .build();
+    }
 }

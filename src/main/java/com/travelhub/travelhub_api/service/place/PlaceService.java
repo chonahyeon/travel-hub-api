@@ -2,6 +2,7 @@ package com.travelhub.travelhub_api.service.place;
 
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
@@ -31,13 +32,15 @@ public class PlaceService {
     @Value("${google.api-key}")
     private String apiKey;
 
-    public Page<TravelPlace> get(String name, String type, Pageable pageable) {
-        Page<TravelPlace> places = null;
+    public Page<PlaceResponse> get(String name, String type, Pageable pageable) {
+        Page<PlaceResponse> response = null;
         /*
          * searchType
          *  G = 일반 검색, R = 재검색
          */
         try {
+            Page<TravelPlace> places = null;
+
             if (SearchType.G.toString().equalsIgnoreCase(type)) {
                 // 일반 검색인 경우에만, elasticSearch 조회
                 places = travelRepository.findByPcNameContaining(name, pageable);
@@ -52,14 +55,18 @@ public class PlaceService {
                 // place api 응답 데이터 페이징 처리
                 places = paginateGooglePlaces(googlePlaces, pageable);
             }
+
+            if (!places.isEmpty()) {
+                response = places.map(TravelPlace::ofPlaceResponse);
+            }
         } catch (NoSuchElementException e) {
             log.warn("place not found. REQ = '{}'", name);
             throw new CustomException(ErrorCodes.INVALID_PARAM, name);
         } catch (Exception e) {
-            log.error("places ");
+            log.error("장소 조회 error. ", e);
         }
 
-        return places;
+        return response;
     }
 
     private List<TravelPlace> getGooglePlaces(String name){
@@ -75,7 +82,7 @@ public class PlaceService {
                 .build()).collect(Collectors.toList());
 
         if (places.isEmpty()) {
-
+            throw new NoSuchElementException();
         }
 
         return places;

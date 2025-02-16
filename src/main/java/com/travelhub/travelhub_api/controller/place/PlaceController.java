@@ -1,6 +1,6 @@
 package com.travelhub.travelhub_api.controller.place;
 
-import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
+import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.service.place.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,10 +23,10 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<TravelPlace>>> get(@RequestParam String name,
-                                                                    @RequestParam String type,
-                                                                    Pageable pageable,
-                                                                    PagedResourcesAssembler<TravelPlace> assembler) {
+    public ResponseEntity<PagedModel<EntityModel<PlaceResponse>>> get(@RequestParam String name,
+                                                                      @RequestParam String type,
+                                                                      Pageable pageable,
+                                                                      PagedResourcesAssembler<PlaceResponse> assembler) {
         return ResponseEntity.ok(assembler.toModel(placeService.get(name, type, pageable)));
     }
 
