@@ -33,8 +33,9 @@ public class ReviewEntity extends BaseTimeEntity {
     @Column(name = "ct_idx")
     private Long ctIdx;
 
-    public void updateReview(String rvText) {
+    public void updateReview(String rvText, Double rvScore) {
         this.rvText = rvText;
+        this.rvScore = rvScore;
     }
 
 }

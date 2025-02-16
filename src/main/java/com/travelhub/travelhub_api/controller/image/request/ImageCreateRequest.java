@@ -6,6 +6,7 @@ import com.travelhub.travelhub_api.data.mysql.entity.ImageEntity;
 public record ImageCreateRequest(
         Long ctIdx,
         ImageType igType,
+        Long idx,
         String igUrl
 ) {
     public ImageEntity of() {

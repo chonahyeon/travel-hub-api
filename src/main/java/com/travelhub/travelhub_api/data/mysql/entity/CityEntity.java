@@ -23,4 +23,7 @@ public class CityEntity {
 
     @Column(name = "cit_name")
     String citName;
+
+    @Column(name = "cit_description")
+    String citDescription;
 }

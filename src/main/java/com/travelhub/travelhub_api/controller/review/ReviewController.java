@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.controller.review;
 
 import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest;
+import com.travelhub.travelhub_api.controller.review.response.ReviewCreateResponse;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import com.travelhub.travelhub_api.service.review.ReviewService;
@@ -43,15 +44,15 @@ public class ReviewController {
      * @param request request body
      */
     @PostMapping
-    public void createReview(@RequestBody ReviewCreateRequest request) {
-        reviewService.createReview(request);
+    public ReviewCreateResponse createReview(@RequestBody ReviewCreateRequest request) {
+        return reviewService.createReview(request);
     }
 
     /**
      * 리뷰 업데이트
      * PUT /travel/v1/review
      */
-    @PutMapping("/{rvIdx}")
+    @PatchMapping("/{rvIdx}")
     public void updateReview(@PathVariable Long rvIdx, @RequestBody ReviewCreateRequest request){
         reviewService.updateReview(rvIdx, request);
     }
