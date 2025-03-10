@@ -1,9 +1,9 @@
 package com.travelhub.travelhub_api.service.image;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
-import com.travelhub.travelhub_api.controller.image.request.ImageCreateRequest;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
 import com.travelhub.travelhub_api.data.dto.image.BestImageListDTO;
+import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.ImageEntity;
@@ -18,8 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -47,22 +49,16 @@ public class ImageService {
     /**
      * 이미지 업로드 진행
      *
-     * @param image     멀티 파트
-     * @param request 이미지 타입 (RV, CT) / 매핑 idx
+     * @param images    멀티 파트
+     * @param igType 이미지 타입 (RV, CT) / 매핑 idx
      */
-    @Transactional
-    public void uploadImage(MultipartFile image, ImageCreateRequest request) {
-        String randomPath = getRandomPath(request.igType());
-        // 업로드
-        storageService.uploadFile(randomPath, image);
-        // 이미지 정보 저장
-        ImageEntity imageEntity = ImageEntity.builder()
-                .igType(request.igType())
-                .igPath(randomPath)
-                .stIdx(1L)
-                .idx(request.idx())
-                .build();
-        imageRepository.save(imageEntity);
+    public List<String> uploadImage(List<MultipartFile> images, ImageType igType) {
+        // 업로드 정보
+        List<UploadDTO> uploadDTOS = new ArrayList<>();
+        // 임의로 경로 먼저 생성
+        List<String> randomPath = getRandomPath(igType, images, uploadDTOS);
+        storageService.uploadFiles(uploadDTOS);
+        return randomPath;
     }
 
     /**
@@ -80,10 +76,24 @@ public class ImageService {
     /*
      * 이미지 업로드 경로 생성 (이미지 타입별 root 경로 다름)
      */
-    private String getRandomPath(ImageType imageType) {
+    private List<String> getRandomPath(ImageType imageType, List<MultipartFile> images, List<UploadDTO> uploadDTOS) {
         LocalDate now = LocalDate.now();
         String parent = now.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "/";
-        UUID imageName = UUID.randomUUID();
-        return imageType.getUploadPath() + parent + imageName + ".jpg";
+        List<String> randomPaths = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            String fileName = UUID.randomUUID() + ".jpg";
+            String uploadPath = imageType.getUploadPath() + parent + fileName;
+
+            UploadDTO uploadDTO = UploadDTO.builder()
+                    .uploadPath(uploadPath)
+                    .uploadFile(image)
+                    .build();
+
+            randomPaths.add(uploadPath);
+            uploadDTOS.add(uploadDTO);
+        }
+
+        return randomPaths;
     }
 }

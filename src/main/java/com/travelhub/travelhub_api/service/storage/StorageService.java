@@ -3,6 +3,7 @@ package com.travelhub.travelhub_api.service.storage;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
+import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
 import com.oracle.bmc.objectstorage.model.CreatePreauthenticatedRequestDetails;
 import com.oracle.bmc.objectstorage.model.PreauthenticatedRequest;
@@ -11,8 +12,14 @@ import com.oracle.bmc.objectstorage.requests.DeleteObjectRequest;
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest;
 import com.oracle.bmc.objectstorage.responses.CreatePreauthenticatedRequestResponse;
 import com.oracle.bmc.objectstorage.responses.PutObjectResponse;
+import com.oracle.bmc.responses.AsyncHandler;
+import com.oracle.bmc.retrier.RetryConfiguration;
+import com.oracle.bmc.waiter.FixedTimeDelayStrategy;
+import com.oracle.bmc.waiter.MaxAttemptsTerminationStrategy;
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.common.util.FileUtil;
+import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.StorageEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.StorageRepository;
@@ -24,7 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -32,10 +42,11 @@ import java.util.Optional;
 public class StorageService {
 
     private final StorageRepository storageRepository;
-    private final RedisService<String,String> redisService;
+    private final RedisService<String, String> redisService;
 
     /**
      * 스토리지 클라이언트 생성
+     *
      * @return object storage 클라이언트
      */
     private ObjectStorage getClient() throws IOException {
@@ -44,12 +55,23 @@ public class StorageService {
     }
 
     /**
+     * 스토리지 클라이언트 생성 (비동기)
+     *
+     * @return object storage 클라이언트
+     */
+    private ObjectStorageAsyncClient getAsyncClient() throws IOException {
+        AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider("~/.oci/config", "DEFAULT");
+        return ObjectStorageAsyncClient.builder().build(provider);
+    }
+
+    /**
      * 버킷에 요청 가능한 사전 인증된 요청 도메인 생성
      * 이미지 노출용으로만 사용.
+     *
      * @param storageEntity 스토리지 정보
      */
     private String getPreAuthenticated(StorageEntity storageEntity) {
-        try (ObjectStorage client = getClient()){
+        try (ObjectStorage client = getClient()) {
             long now = System.currentTimeMillis();
             String preAuthenticatedName = String.format("%s_%s", storageEntity.getStName(), now);
 
@@ -96,24 +118,70 @@ public class StorageService {
         });
     }
 
-    public void uploadFile(String uploadPath, MultipartFile uploadFile) {
+    /**
+     * 다중 파일 업로드
+     * @param uploadDTOS 업로드 정보
+     */
+    public void uploadFiles(List<UploadDTO> uploadDTOS) {
         StorageEntity storage = storageRepository.findById(1L)
                 .orElseThrow(() -> new CustomException(ErrorCodes.STORAGE_NOT_FOUND));
 
-        try (ObjectStorage client = getClient())
+        try (ObjectStorageAsyncClient asyncClient = getAsyncClient())
         {
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucketName(storage.getStName())
-                    .objectName(uploadPath)
-                    .contentLength(uploadFile.getSize())
-                    .putObjectBody(uploadFile.getInputStream())
+            CountDownLatch blockLatch = new CountDownLatch(uploadDTOS.size());
+            for (UploadDTO uploadDTO : uploadDTOS) {
+                uploadFile(asyncClient, uploadDTO, storage, blockLatch);
+            }
+            blockLatch.await();
+        } catch (Exception e) {
+            log.error("uploadFiles() : ", e);
+        }
+    }
+
+    /**
+     * 비동기 단건 파일 업로드
+     * @param client 업로드 client
+     * @param uploadDTO 업로드 정보
+     * @param storage 스토리지 정보
+     * @param block client 리소스 해제용
+     */
+    public void uploadFile(ObjectStorageAsyncClient client, UploadDTO uploadDTO, StorageEntity storage, CountDownLatch block) {
+        try {
+            // 재시도 정책
+            RetryConfiguration retryConfig = RetryConfiguration.builder()
+                    .terminationStrategy(new MaxAttemptsTerminationStrategy(3)) // 최대 3회 시도
+                    .delayStrategy(new FixedTimeDelayStrategy(TimeUnit.SECONDS.toMillis(2))) // 2초 간격
                     .build();
 
-            PutObjectResponse putObjectResponse = client.putObject(request);
-            log.info("업로드 결과 : {}", putObjectResponse);
+            // 업로드 진행
+            MultipartFile uploadFile = uploadDTO.getUploadFile();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucketName(storage.getStName())
+                    .retryConfiguration(retryConfig)
+                    .objectName(uploadDTO.getUploadPath())
+                    .contentLength(uploadFile.getSize())
+                    .putObjectBody(uploadFile.getInputStream())
+                    .opcClientRequestId(uploadDTO.getUniqueKey())
+                    .build();
+
+            client.putObject(request, new AsyncHandler<>() {
+                @Override
+                public void onSuccess(PutObjectRequest request, PutObjectResponse response) {
+                    log.info("업로드 성공 ㅣ {}", uploadDTO.getUploadPath());
+                    block.countDown();
+                }
+
+                @Override
+                public void onError(PutObjectRequest request, Throwable error) {
+                    log.error("업로드 실패 | {}", uploadDTO.getUploadPath(), error);
+                    block.countDown();
+                    // 실패건 재시도를 위해 local 에 write
+                    FileUtil.createFile(uploadFile, uploadDTO.getUploadPath());
+                }
+            });
+
         } catch (Exception e) {
             log.error("uploadImage() : ", e);
-            throw new CustomException(ErrorCodes.SERVER_ERROR);
         }
     }
 

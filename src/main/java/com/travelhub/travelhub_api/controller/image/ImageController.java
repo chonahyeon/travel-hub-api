@@ -2,11 +2,14 @@ package com.travelhub.travelhub_api.controller.image;
 
 import com.travelhub.travelhub_api.controller.image.request.ImageCreateRequest;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
+import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.service.image.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 
@@ -22,8 +25,8 @@ public class ImageController {
      * POST /travel/v1/image/upload
      */
     @PostMapping(value = UPLOAD, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public void upload(@RequestPart MultipartFile file, @RequestPart ImageCreateRequest request) {
-        imageService.uploadImage(file, request);
+    public List<String> upload(@RequestPart List<MultipartFile> files, @RequestPart ImageType igType) {
+        return imageService.uploadImage(files, igType);
     }
 
     /**

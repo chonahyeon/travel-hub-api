@@ -4,6 +4,7 @@ import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
+import com.travelhub.travelhub_api.controller.contents.response.ContentsMainListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsResponse;
 import com.travelhub.travelhub_api.data.dto.contents.*;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlaceDetailsDto;
@@ -22,6 +23,7 @@ import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsPlaceR
 import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsTagRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.tag.TagRepository;
+import com.travelhub.travelhub_api.data.mysql.support.ContentsRepositorySupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,6 +53,8 @@ public class ContentsService {
     private final ContentsRepository contentsRepository;
     private final ContentsTagRepository contentsTagRepository;
     private final ContentsPlaceRepository contentsPlaceRepository;
+
+    private final ContentsRepositorySupport contentsRepositorySupport;
 
     public void create(ContentsRequest request) {
         // contents 생성
@@ -227,4 +232,27 @@ public class ContentsService {
         contentsRepository.save(contents);
     }
 
+    @Transactional(readOnly = true)
+    public List<ContentsMainListResponse> findMainList(List<Long> tags, Pageable pageable) {
+        List<ContentsMainListResponse> responses = new ArrayList<>();
+        // 메인 컨텐츠 조회
+        List<ContentsTagDTO> mainContents = contentsRepositorySupport.findMainContents(tags, pageable);
+
+        // 태그별 그룹화
+        Map<String, List<ContentsTagDTO>> groupByTag = mainContents.stream()
+                .collect(Collectors.groupingBy(ContentsTagDTO::tagName));
+
+        for (String tag : groupByTag.keySet()) {
+            List<ContentsTagDTO> tagContents = groupByTag.getOrDefault(tag, new ArrayList<>());
+
+            ContentsMainListResponse response = ContentsMainListResponse.builder()
+                    .tgIdx(tagContents.get(0).tgIdx())
+                    .tgName(tag)
+                    .contents(ContentsListResponse.ofList(tagContents))
+                    .build();
+
+            responses.add(response);
+        }
+        return responses;
+    }
 }

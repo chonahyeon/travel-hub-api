@@ -2,6 +2,7 @@ package com.travelhub.travelhub_api.controller.contents;
 
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
+import com.travelhub.travelhub_api.controller.contents.response.ContentsMainListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsResponse;
 import com.travelhub.travelhub_api.service.contents.ContentsService;
 import jakarta.validation.Valid;
@@ -15,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.travelhub.travelhub_api.common.resource.TravelHubResource.API_V1_CONTENTS;
-import static com.travelhub.travelhub_api.common.resource.TravelHubResource.LIST;
+import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,5 +51,14 @@ public class ContentsController {
                                                                                  Pageable pageable,
                                                                                  PagedResourcesAssembler<ContentsListResponse> assembler) {
         return ResponseEntity.ok(assembler.toModel(contentsService.getList(tags, cities, pageable)));
+    }
+
+    /**
+     * 메인 여행코스 목록 조회 (태그별 집계)
+     * GET /travel/v1/contents/main?tags=1,2&page=1&size=10
+     */
+    @GetMapping(MAIN)
+    public List<ContentsMainListResponse> getMainList(@RequestParam List<Long> tags, Pageable pageable) {
+        return contentsService.findMainList(tags, pageable);
     }
 }
