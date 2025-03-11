@@ -2,8 +2,8 @@ package com.travelhub.travelhub_api.data.dto.storage;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 @Getter
@@ -14,5 +14,7 @@ public class UploadDTO {
 
     private String uploadPath;
 
-    private MultipartFile uploadFile;
+    private Long size;
+
+    private InputStream uploadFileStream;
 }

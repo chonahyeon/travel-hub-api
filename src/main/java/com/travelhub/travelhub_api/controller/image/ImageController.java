@@ -1,6 +1,5 @@
 package com.travelhub.travelhub_api.controller.image;
 
-import com.travelhub.travelhub_api.controller.image.request.ImageCreateRequest;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.service.image.ImageService;
@@ -24,8 +23,9 @@ public class ImageController {
      * 이미지 업로드
      * POST /travel/v1/image/upload
      */
-    @PostMapping(value = UPLOAD, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public List<String> upload(@RequestPart List<MultipartFile> files, @RequestPart ImageType igType) {
+    @PostMapping(value = UPLOAD, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<String> upload(@RequestPart(name = "files") List<MultipartFile> files,
+                               @RequestParam(name = "igType") ImageType igType) {
         return imageService.uploadImage(files, igType);
     }
 

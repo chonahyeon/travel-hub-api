@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -85,13 +84,19 @@ public class ImageService {
             String fileName = UUID.randomUUID() + ".jpg";
             String uploadPath = imageType.getUploadPath() + parent + fileName;
 
-            UploadDTO uploadDTO = UploadDTO.builder()
-                    .uploadPath(uploadPath)
-                    .uploadFile(image)
-                    .build();
+            try {
+                UploadDTO uploadDTO = UploadDTO.builder()
+                        .uploadPath(uploadPath)
+                        .uploadFileStream(image.getInputStream())
+                        .size(image.getSize())
+                        .build();
 
-            randomPaths.add(uploadPath);
-            uploadDTOS.add(uploadDTO);
+                randomPaths.add(uploadPath);
+                uploadDTOS.add(uploadDTO);
+            } catch (Exception e) {
+                log.error("getRandomPath() : 파일 스트림 할당 실패 ", e);
+                throw new CustomException(ErrorCodes.SERVER_ERROR);
+            }
         }
 
         return randomPaths;

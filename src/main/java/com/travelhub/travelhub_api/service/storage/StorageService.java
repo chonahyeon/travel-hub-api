@@ -18,7 +18,6 @@ import com.oracle.bmc.waiter.FixedTimeDelayStrategy;
 import com.oracle.bmc.waiter.MaxAttemptsTerminationStrategy;
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
-import com.travelhub.travelhub_api.common.util.FileUtil;
 import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.StorageEntity;
@@ -26,8 +25,8 @@ import com.travelhub.travelhub_api.data.mysql.repository.StorageRepository;
 import com.travelhub.travelhub_api.service.common.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
@@ -122,6 +121,7 @@ public class StorageService {
      * 다중 파일 업로드
      * @param uploadDTOS 업로드 정보
      */
+    @Async(value = "uploadExecutor")
     public void uploadFiles(List<UploadDTO> uploadDTOS) {
         StorageEntity storage = storageRepository.findById(1L)
                 .orElseThrow(() -> new CustomException(ErrorCodes.STORAGE_NOT_FOUND));
@@ -154,13 +154,13 @@ public class StorageService {
                     .build();
 
             // 업로드 진행
-            MultipartFile uploadFile = uploadDTO.getUploadFile();
             PutObjectRequest request = PutObjectRequest.builder()
+                    .namespaceName(storage.getStNamespace())
                     .bucketName(storage.getStName())
                     .retryConfiguration(retryConfig)
                     .objectName(uploadDTO.getUploadPath())
-                    .contentLength(uploadFile.getSize())
-                    .putObjectBody(uploadFile.getInputStream())
+                    .contentLength(uploadDTO.getSize())
+                    .putObjectBody(uploadDTO.getUploadFileStream())
                     .opcClientRequestId(uploadDTO.getUniqueKey())
                     .build();
 
@@ -176,7 +176,7 @@ public class StorageService {
                     log.error("업로드 실패 | {}", uploadDTO.getUploadPath(), error);
                     block.countDown();
                     // 실패건 재시도를 위해 local 에 write
-                    FileUtil.createFile(uploadFile, uploadDTO.getUploadPath());
+                    //FileUtil.createFile(uploadFile, uploadDTO.getUploadPath());
                 }
             });
 

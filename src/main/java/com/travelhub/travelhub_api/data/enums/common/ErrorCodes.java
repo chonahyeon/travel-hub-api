@@ -28,7 +28,7 @@ public enum ErrorCodes {
     PLACE_CITY_NOT_FOUND(NOT_FOUND, "REQ-101", "%s 장소의 도시 정보가 없습니다."),
     CITY_NOT_FOUND(NOT_FOUND, "REQ-102", "유효하지 않은 도시입니다."),
     CONTENTS_NOT_FOUND(NOT_FOUND, "REQ-500", "유효하지 않은 게시글입니다."),
-    STORAGE_NOT_FOUND(NOT_FOUND, "REQ-400", "스토리지 정보가 없습니다.")
+    STORAGE_NOT_FOUND(NOT_FOUND, "REQ-400", "스토리지 정보가 없습니다."),
     ;
 
 
