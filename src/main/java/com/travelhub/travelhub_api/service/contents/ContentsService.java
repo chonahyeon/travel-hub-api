@@ -24,6 +24,7 @@ import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsReposi
 import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsTagRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.tag.TagRepository;
 import com.travelhub.travelhub_api.data.mysql.support.ContentsRepositorySupport;
+import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,8 @@ public class ContentsService {
 
     private final ContentsRepositorySupport contentsRepositorySupport;
 
+    private final StorageService storageService;
+
     public void create(ContentsRequest request) {
         // contents 생성
         ContentsEntity contents = contentsRepository.save(request.ofContentsEntity());
@@ -65,15 +68,7 @@ public class ContentsService {
         contentsTagRepository.saveAll(request.ofContentsTagEntity(contentsIdx));
 
         // contents ⟷ places 매핑
-        for (ContentsPlaceWriterDto contentsPlace : request.places()) {
-            // 장소 저장
-            Long placeIdx = upsertPlace(contentsPlace.pcId());
-
-            // 이미지 저장
-            Long imageIdx = imageRepository.save(contentsPlace.ofImageEntity(contentsIdx)).getIdx();
-
-            contentsPlaceRepository.save(contentsPlace.ofContentsPlaceEntity(contentsIdx, placeIdx, imageIdx));
-        }
+        request.places().forEach(contentsPlace -> saveContentsPlace(contentsIdx, contentsPlace));
     }
 
     public ContentsResponse get(Long contentsId) {
@@ -85,7 +80,11 @@ public class ContentsService {
 
         // content, place 분기 처리
         ContentsDto contents = contentsPlaceList.get(0).ofContents();
-        List<PlaceDto> places = contentsPlaceList.stream().map(ContentsPlaceReaderDto::ofPlace).collect(Collectors.toList());
+
+        String domain = storageService.getImageDomain();
+        List<PlaceDto> places = contentsPlaceList.stream()
+                .map(contentsPlace -> contentsPlace.ofPlace(domain))
+                .collect(Collectors.toList());
 
         // tag 목록 조회
         List<TagDto> tags = tagRepository.findTagsByContentsIdx(contentsId);
@@ -101,7 +100,7 @@ public class ContentsService {
         ContentsResponse contentSummary = get(contentsId);
 
         // 제목 업데이트
-        updateContents(contentsId, request.title());
+        updateContentsTitle(contentsId, request.title());
 
         // 태그 업데이트
         updateTag(contentsId, contentSummary.tags().stream().map(TagDto::tgIdx).toList(), request.tags());
@@ -119,39 +118,57 @@ public class ContentsService {
         // delete 'contents_tag`
         contentsTagRepository.deleteByCtIdx(contentsId);
         // delete `image`
-        imageRepository.deleteByIdxAndIgType(contentsId, ImageType.CT);
+        contentsPlaceRepository.findAllByCtIdx(contentsId)
+                .forEach(contentsPlace -> imageRepository.deleteByIdxAndIgType(contentsPlace.getCpIdx(), ImageType.CT));
     }
 
-    public Page<ContentsListResponse> getList(List<String> tags, List<String> cities, Pageable pageable) {
+    public List<ContentsListResponse> getList(List<String> tags, String city, Pageable pageable) {
         // tags, cities 가 있는 경우에만 join 처리
-        return contentsRepository.findContentsByAllByTagsAndCities(tags, cities, pageable);
+        return contentsRepository.findContentsByAllByTagsAndCities(tags, city, pageable);
     }
 
-    private Long upsertPlace(String placeId) {
-        PlaceEntity place;
+    private void saveContentsPlace(Long contentsIdx, ContentsPlaceWriterDto reqContentsPlace) {
+        // 장소 조회 or 저장
+        Long placeIdx = getPlace(reqContentsPlace.pcId());
 
-        // 임시 저장 된 장소 조회 from elasticsearch
-        TravelPlace placeInfo = travelRepository.findById(placeId)
-                .orElseThrow(() -> new CustomException(ErrorCodes.PLACE_NOT_FOUND));
+        ContentsPlaceEntity contentsPlace = contentsPlaceRepository.save(reqContentsPlace.ofContentsPlaceEntity(contentsIdx, placeIdx));
 
-        // 도시명 조회 from google
-        String cityName = getPlaceCity(placeInfo.getPcId());
-        if (null == cityName) {
-            throw new CustomException(ErrorCodes.PLACE_CITY_NOT_FOUND, placeInfo.getPcName());
-        }
+        // 이미지 저장
+        imageRepository.save(reqContentsPlace.ofImageEntity(contentsPlace.getCpIdx()));
+    }
 
-        // 도시 인덱스 조회 from db
-        Long citIdx = cityRepository.findByCitName(cityName)
-                .orElseThrow(() -> new CustomException(ErrorCodes.CITY_NOT_FOUND))
-                .getCitIdx();
+    private void updateContentsPlace(ContentsPlaceWriterDto reqContentsPlace) {
+        contentsPlaceRepository.save(reqContentsPlace.ofUpdateContentsPlaceEntity());
+        imageRepository.findByIdxAndIgType(reqContentsPlace.cpIdx(), ImageType.CT)
+                .ifPresent(image -> {
+                    image.updateIgPath(reqContentsPlace.convertImages());
+                });
+    }
 
-        place = placeInfo.ofPlaceEntity(citIdx);
+    private Long getPlace(String placeId) {
+        // 장소가 이미 저장 되어 있는 경우 skip
+        return placeRepository.findByPcId(placeId)
+                .map(PlaceEntity::getPcIdx)
+                .orElseGet(() -> { // 장소 신규 등록
+                    // 임시 저장 된 장소 조회 from elasticsearch
+                    TravelPlace placeInfo = travelRepository.findById(placeId)
+                            .orElseThrow(() -> new CustomException(ErrorCodes.PLACE_NOT_FOUND));
 
-        // 저장된 장소가 있는 경우 update
-        placeRepository.findByPcId(placeId)
-                .ifPresent(placeEntity -> place.addIdx(placeEntity.getPcIdx()));
+                    // 도시명 조회 from google
+                    String cityName = getPlaceCity(placeInfo.getPcId());
+                    if (null == cityName) {
+                        throw new CustomException(ErrorCodes.PLACE_CITY_NOT_FOUND, placeInfo.getPcName());
+                    }
 
-        return placeRepository.save(place).getPcIdx();
+                    // 도시 인덱스 조회 from db
+                    Long citIdx = cityRepository.findByCitName(cityName)
+                            .orElseThrow(() -> new CustomException(ErrorCodes.CITY_NOT_FOUND))
+                            .getCitIdx();
+
+                    PlaceEntity place = placeInfo.ofPlaceEntity(citIdx);
+
+                    return placeRepository.save(place).getPcIdx();
+                });
     }
 
     private String getPlaceCity(String placeId){
@@ -160,52 +177,43 @@ public class ContentsService {
         GooglePlaceDetailsDto placesDetail = mapsClient.getPlacesDetail(placeId, "address_component", "ko", apiKey);
 
         if (placesDetail != null && placesDetail.getResults() != null) {
-            for (GooglePlaceDetailsDto.Result result : placesDetail.getResults()) {
-                if (result.getAddressComponents() != null) {
-                    // address_components 리스트를 순회
-                    for (GooglePlaceDetailsDto.AddressComponent component : result.getAddressComponents()) {
-                        // types에 "locality"가 포함되어 있는지 확인
-                        if (component.getTypes() != null && component.getTypes().contains("locality")) {
-                            // short_name 값을 city에 저장
-                            city = component.getShortName();
-                            break;
-                        }
-                    }
-                }
-                if (city != null) break;
-            }
+            city = placesDetail.getResults().stream()
+                    .filter(result -> result.getAddressComponents() != null)
+                    .flatMap(result -> result.getAddressComponents().stream())
+                    .filter(component -> component.getTypes() != null && component.getTypes().contains("locality"))
+                    .map(GooglePlaceDetailsDto.AddressComponent::getShortName)
+                    .findFirst()
+                    .orElse(null);
         }
 
         return city;
     }
 
     private void updateTag(Long contentIdx, List<Long> currTags, List<Long> reqTags) {
-        List<ContentsTagEntity> saveList = new ArrayList<>();
-        List<ContentsTagEntity> deleteList = new ArrayList<>();
+        List<ContentsTagEntity> saveList;
+        List<ContentsTagEntity> deleteList;
 
         // 추가
-        for (Long idx : reqTags) {
-            if (!currTags.contains(idx)) {
-                saveList.add(ContentsTagEntity.builder()
+        saveList = reqTags.stream()
+                .filter(idx -> !currTags.contains(idx))
+                .map(idx -> ContentsTagEntity.builder()
                         .ctIdx(contentIdx)
                         .tgIdx(idx)
-                        .build());
-            }
-        }
+                        .build())
+                .collect(Collectors.toList());
 
         if (!saveList.isEmpty()) {
             contentsTagRepository.saveAll(saveList);
         }
 
         // 삭제
-        for (Long idx : currTags) {
-            if (!reqTags.contains(idx)) {
-                deleteList.add(ContentsTagEntity.builder()
+        deleteList = currTags.stream()
+                .filter(idx -> !reqTags.contains(idx))
+                .map(idx -> ContentsTagEntity.builder()
                         .ctIdx(contentIdx)
                         .tgIdx(idx)
-                        .build());
-            }
-        }
+                        .build())
+                .collect(Collectors.toList());
 
         if (!deleteList.isEmpty()) {
             contentsTagRepository.deleteAll(deleteList);
@@ -213,17 +221,32 @@ public class ContentsService {
     }
 
     private void updatePlace(Long ctIdx, List<PlaceDto> currPlaces, List<ContentsPlaceWriterDto> reqPlaces) {
-        List<ContentsPlaceEntity> saveList = new ArrayList<>();
-        List<ContentsPlaceEntity> updateList = new ArrayList<>();
-        List<ContentsPlaceEntity> dlelteList = new ArrayList<>();
+        List<String> reqPlaceIds = reqPlaces.stream().map(ContentsPlaceWriterDto::pcId).toList();
+        List<String> currPlaceIds = currPlaces.stream().map(PlaceDto::pcId).toList();
 
         // 추가
-        // 변경
-        // 삭제
+        reqPlaces.stream()
+                .filter(reqPlace -> !currPlaceIds.contains(reqPlace.pcId()))
+                .forEach(reqPlace -> saveContentsPlace(ctIdx, reqPlace));
 
+        // 변경
+        reqPlaces.stream()
+                .filter(reqPlace -> currPlaceIds.contains(reqPlace.pcId()))
+                .forEach(this::updateContentsPlace);
+
+        // 삭제
+        currPlaces.stream()
+                .filter(currPlace -> !reqPlaceIds.contains(currPlace.pcId()))
+                .map(PlaceDto::cpIdx)
+                .forEach(contentsPlaceIdx -> {
+                    // delete `contents_place`
+                    contentsPlaceRepository.deleteByCpIdx(contentsPlaceIdx);
+                    // delete `image`
+                    imageRepository.deleteByIdxAndIgType(contentsPlaceIdx, ImageType.CT);
+                });
     }
 
-    private void updateContents(Long ctIdx, String title) {
+    private void updateContentsTitle(Long ctIdx, String title) {
         ContentsEntity contents = ContentsEntity.builder()
                 .ctIdx(ctIdx)
                 .ctTitle(title)

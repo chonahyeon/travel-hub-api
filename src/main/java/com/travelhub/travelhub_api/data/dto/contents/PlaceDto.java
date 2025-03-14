@@ -2,6 +2,8 @@ package com.travelhub.travelhub_api.data.dto.contents;
 
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record PlaceDto(
         Long cpIdx,
@@ -14,6 +16,6 @@ public record PlaceDto(
         Double pcLat,
         String pcName,
         Double pcRating,
-        String igPath
+        List<String> igPath
 ) {
 }

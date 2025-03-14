@@ -10,6 +10,6 @@ import java.util.List;
 public interface ContentsRepositoryCustom {
     List<ContentsPlaceReaderDto> findContentsWithPlacesByContentsIdx(Long ctIdx);
 
-    Page<ContentsListResponse> findContentsByAllByTagsAndCities(List<String> tags, List<String> cities, Pageable pageable);
+    List<ContentsListResponse> findContentsByAllByTagsAndCities(List<String> tags, String city, Pageable pageable);
 
 }

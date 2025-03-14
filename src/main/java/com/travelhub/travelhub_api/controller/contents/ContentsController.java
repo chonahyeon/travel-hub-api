@@ -46,11 +46,8 @@ public class ContentsController {
     }
 
     @GetMapping(LIST)
-    public ResponseEntity<PagedModel<EntityModel<ContentsListResponse>>> getList(@RequestParam List<String> tags,
-                                                                                 @RequestParam List<String> cities,
-                                                                                 Pageable pageable,
-                                                                                 PagedResourcesAssembler<ContentsListResponse> assembler) {
-        return ResponseEntity.ok(assembler.toModel(contentsService.getList(tags, cities, pageable)));
+    public List<ContentsListResponse> getList(@RequestParam List<String> tags, @RequestParam String city, Pageable pageable) {
+        return contentsService.getList(tags, city, pageable);
     }
 
     /**
