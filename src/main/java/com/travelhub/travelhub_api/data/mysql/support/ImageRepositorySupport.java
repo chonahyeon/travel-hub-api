@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.travelhub.travelhub_api.data.dto.image.BestImageListDTO;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
+import com.travelhub.travelhub_api.data.enums.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,7 @@ public class ImageRepositorySupport {
             .on(contentsPlaceEntity.cpType.eq(ContentsPlaceType.M))
             .on(contentsPlaceEntity.cpOrder.eq(1))
         .innerJoin(imageEntity)
-            .on(contentsPlaceEntity.igIdx.eq(imageEntity.igIdx))
+            .on(contentsPlaceEntity.cpIdx.eq(imageEntity.idx)).on(imageEntity.igType.eq(ImageType.CT))
         .innerJoin(contentsEntity)
             .on(contentsPlaceEntity.ctIdx.eq(contentsEntity.ctIdx))
         .where(cityEntity.citIdx.eq(citIdx))

@@ -30,4 +30,8 @@ public class ImageEntity {
 
     @Column(name = "st_idx", nullable = false)
     private Long stIdx;
+
+    public void updateIgPath(String paths) {
+        this.igPath = paths;
+    }
 }

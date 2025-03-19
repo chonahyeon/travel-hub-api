@@ -36,13 +36,4 @@ public class ContentsPlaceEntity {
 
     @Column(name = "ct_idx")
     private Long ctIdx;
-
-    @Column(name = "ig_idx")
-    private Long igIdx;
-
-    public void update(ContentsPlaceWriterDto request, Long igIdx) {
-        this.cpOrder = request.cpOrder();;
-        this.cpText = request.text();
-        this.igIdx = igIdx;
-    }
 }

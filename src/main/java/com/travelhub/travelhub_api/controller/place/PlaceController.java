@@ -27,11 +27,8 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<PlaceResponse>>> get(@RequestParam String name,
-                                                                      @RequestParam String type,
-                                                                      Pageable pageable,
-                                                                      PagedResourcesAssembler<PlaceResponse> assembler) {
-        return ResponseEntity.ok(assembler.toModel(placeService.get(name, type, pageable)));
+    public List<PlaceResponse> get(@RequestParam String name, @RequestParam String type, Pageable pageable) {
+        return placeService.get(name, type, pageable);
     }
 
     /**

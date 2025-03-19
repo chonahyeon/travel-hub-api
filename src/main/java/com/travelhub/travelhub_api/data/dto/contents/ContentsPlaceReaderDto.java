@@ -1,6 +1,8 @@
 package com.travelhub.travelhub_api.data.dto.contents;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 public record ContentsPlaceReaderDto(
         Long ctIdx,
@@ -30,7 +32,11 @@ public record ContentsPlaceReaderDto(
                 .build();
     }
 
-    public PlaceDto ofPlace() {
+    public PlaceDto ofPlace(String domain) {
+        List<String> images = Arrays.stream(this.igPath.split(","))
+                .map(path -> domain + path)
+                .toList();
+
         return PlaceDto.builder()
                 .cpIdx(this.cpIdx)
                 .cpOrder(this.cpOrder)
@@ -42,7 +48,7 @@ public record ContentsPlaceReaderDto(
                 .pcLat(this.pcLat)
                 .pcName(this.pcName)
                 .pcRating(this.pcRating)
-                .igPath(this.igPath)
+                .igPath(images)
                 .build();
     }
 }

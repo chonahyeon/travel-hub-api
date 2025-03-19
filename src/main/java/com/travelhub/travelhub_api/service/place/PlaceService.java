@@ -15,12 +15,11 @@ import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,14 +38,14 @@ public class PlaceService {
     @Value("${google.api-key}")
     private String apiKey;
 
-    public Page<PlaceResponse> get(String name, String type, Pageable pageable) {
-        Page<PlaceResponse> response = null;
+    public List<PlaceResponse> get(String name, String type, Pageable pageable) {
+        List<PlaceResponse> response = new ArrayList<>();
         /*
          * searchType
          *  G = 일반 검색, R = 재검색
          */
         try {
-            Page<TravelPlace> places = null;
+            List<TravelPlace> places = null;
 
             if (SearchType.G.toString().equalsIgnoreCase(type)) {
                 // 일반 검색인 경우에만, elasticSearch 조회
@@ -64,7 +63,7 @@ public class PlaceService {
             }
 
             if (!places.isEmpty()) {
-                response = places.map(TravelPlace::ofPlaceResponse);
+                response = places.stream().map(TravelPlace::ofPlaceResponse).collect(Collectors.toList());
             }
         } catch (NoSuchElementException e) {
             log.warn("place not found. REQ = '{}'", name);
@@ -102,14 +101,14 @@ public class PlaceService {
         return MainPlaceResponse.ofListDTO(mainPlaces, domain);
     }
 
-    private Page<TravelPlace> paginateGooglePlaces(List<TravelPlace> places, Pageable pageable) {
+    private List<TravelPlace> paginateGooglePlaces(List<TravelPlace> places, Pageable pageable) {
         int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), places.size());
+        int end = Math.min(start + pageable.getPageSize(), places.size());
 
         if (start > places.size()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, places.size());
+            return Collections.emptyList();
         }
 
-        return new PageImpl<>(places.subList(start, end), pageable, places.size());
+        return places.subList(start, end);
     }
 }
