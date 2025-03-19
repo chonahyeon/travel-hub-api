@@ -26,6 +26,9 @@ public class TravelHubResource {
     public static final String AUTH_REFRESH_TOKEN = "refreshToken";
     public static final String LIST_USER = "/list-user";
 
+    public static Boolean authEnabled;
+    public static String testUser;
+
     /*
      * 이미지
      */
