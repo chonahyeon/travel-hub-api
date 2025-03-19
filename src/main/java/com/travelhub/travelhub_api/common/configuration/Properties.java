@@ -86,7 +86,7 @@ public class Properties {
 
         lastModified = currentModified;
         TravelHubResource.STORAGE_CONFIG = get("storage.config.path", String.class, null);
-        TravelHubResource.authEnabled = get("auth.enabled", Boolean.class, null);
+        TravelHubResource.authEnabled = get("auth.enable", Boolean.class, null);
         TravelHubResource.testUser = get("auth.user", String.class, null);
     }
 
