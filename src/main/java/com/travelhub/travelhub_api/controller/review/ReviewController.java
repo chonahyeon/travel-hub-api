@@ -6,6 +6,7 @@ import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import com.travelhub.travelhub_api.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,21 +22,21 @@ public class ReviewController {
 
     /**
      * 리뷰 목록 조회
-     * GET /travel/v1/review/list
+     * GET /travel/v1/review/list?ctIdx=1
      */
     @GetMapping(LIST)
-    public List<ReviewListResponse> findReviews(Long ctIdx) {
-        return reviewService.findReviews(ctIdx);
+    public List<ReviewListResponse> findReviews(@RequestParam Long ctIdx, Pageable pageable) {
+        return reviewService.findReviews(ctIdx, pageable);
     }
 
     /**
      * 사용자 리뷰 목록 조회
-     * GET /travel/v1/review/list-user
+     * GET /travel/v1/review/user/list
      */
     @GetMapping(LIST_USER)
-    public List<ReviewListResponse> findReviewsByUser() {
+    public List<ReviewListResponse> findReviewsByUser(Pageable pageable) {
         String uId = LoginUserDTO.get();
-        return reviewService.findReviewsUser(uId);
+        return reviewService.findReviewsUser(uId, pageable);
     }
 
     /**

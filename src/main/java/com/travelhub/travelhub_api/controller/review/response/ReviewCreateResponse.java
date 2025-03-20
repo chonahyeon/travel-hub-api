@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ReviewCreateResponse(
-        Long rvIdx
+        Long rvIdx,
+        Long igIdx
 ) {
 }

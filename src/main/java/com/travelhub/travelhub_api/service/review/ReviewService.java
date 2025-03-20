@@ -5,13 +5,18 @@ import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest
 import com.travelhub.travelhub_api.controller.review.response.ReviewCreateResponse;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
+import com.travelhub.travelhub_api.data.dto.review.ContentReviewsDTO;
 import com.travelhub.travelhub_api.data.mysql.entity.ContentsEntity;
+import com.travelhub.travelhub_api.data.mysql.entity.ImageEntity;
 import com.travelhub.travelhub_api.data.mysql.entity.ReviewEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.ImageRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.ReviewRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.contents.ContentsRepository;
+import com.travelhub.travelhub_api.data.mysql.support.ReviewRepositorySupport;
+import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,19 +34,32 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ContentsRepository contentsRepository;
     private final ImageRepository imageRepository;
+    private final ReviewRepositorySupport reviewRepositorySupport;
+    private final StorageService storageService;
 
+    /*
+     * 리뷰 조회
+     */
     @Transactional(readOnly = true)
-    public List<ReviewListResponse> findReviews(Long ctIdx) {
-        List<ReviewEntity> contentReviews = reviewRepository.findByCtIdx(ctIdx);
-        return ReviewListResponse.ofList(contentReviews);
+    public List<ReviewListResponse> findReviews(Long ctIdx, Pageable pageable) {
+        List<ContentReviewsDTO> reviews = reviewRepositorySupport.findReviews(ctIdx, pageable);
+        String imageDomain = storageService.getImageDomain();
+        return ReviewListResponse.ofList(reviews, imageDomain);
     }
 
+    /*
+     * 사용자 작성 리뷰 조회
+     */
     @Transactional(readOnly = true)
-    public List<ReviewListResponse> findReviewsUser(String uId) {
-        List<ReviewEntity> userReviews = reviewRepository.findByUsId(uId);
-        return ReviewListResponse.ofList(userReviews);
+    public List<ReviewListResponse> findReviewsUser(String usId, Pageable pageable) {
+        List<ContentReviewsDTO> userReviews = reviewRepositorySupport.findUserReviews(usId, pageable);
+        String imageDomain = storageService.getImageDomain();
+        return ReviewListResponse.ofList(userReviews, imageDomain);
     }
 
+    /*
+     * 리뷰 작성
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public ReviewCreateResponse createReview(ReviewCreateRequest request) {
         ContentsEntity contents = contentsRepository.findById(request.ctIdx())
@@ -54,11 +72,20 @@ public class ReviewService {
         // 컨텐츠 리뷰 점수 업데이트
         updateReviewScore(contents);
 
+        // 이미지 정보 저장
+        Long rvIdx = save.getRvIdx();
+        ImageEntity imageEntity = request.ofImage(rvIdx);
+        ImageEntity imageSave = imageRepository.save(imageEntity);
+
         return ReviewCreateResponse.builder()
-                .rvIdx(save.getRvIdx())
+                .rvIdx(rvIdx)
+                .igIdx(imageSave.getIgIdx())
                 .build();
     }
 
+    /*
+     * 리뷰 본문 수정
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateReview(Long rvIdx, ReviewCreateRequest request) {
         String uId = LoginUserDTO.get();
@@ -69,27 +96,32 @@ public class ReviewService {
         ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
+        // 이미지 정보가 있을 때
+        if (request.igIdx() != null) {
+            ImageEntity imageEntity = imageRepository.findById(request.igIdx())
+                    .orElseThrow(() -> new CustomException(INVALID_PARAM, "igIdx"));
+
+            // 이미지 업데이트
+            imageEntity.updateImagePath(request.concatIgPath());
+        } else if (!request.igPath().isEmpty()){
+            // 이미지 정보가 없다면 추가
+            ImageEntity imageEntity = request.ofImage(rvIdx);
+            imageRepository.save(imageEntity);
+        }
+
+        // 리뷰 업데이트
         reviewEntity.updateReview(request.rvText(), request.rvScore());
 
-        // update score
+        // 컨텐츠 리뷰 점수 업데이트
         updateReviewScore(contents);
     }
 
-    private void updateReviewScore(ContentsEntity content) {
-        List<ReviewEntity> contentReviews = reviewRepository.findByCtIdx(content.getCtIdx());
-
-        double scores = contentReviews.stream()
-                .mapToDouble(ReviewEntity::getRvScore)
-                .sum();
-
-        Double contentScore = scores / contentReviews.size();
-        content.updateScore(contentScore);
-    }
-
+    /*
+     * 리뷰 삭제 진행
+     */
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteReview(Long rvIdx) {
         String uId = LoginUserDTO.get();
-
         ReviewEntity reviewEntity = reviewRepository.findByUsIdAndRvIdx(uId, rvIdx)
                 .orElseThrow(() -> new CustomException(INVALID_PARAM, "rvIdx"));
 
@@ -100,5 +132,19 @@ public class ReviewService {
         ContentsEntity contents = contentsRepository.findById(reviewEntity.getCtIdx()).get();
         // update score
         updateReviewScore(contents);
+    }
+
+    /*
+     * 컨텐츠 리뷰 점수 업데이트
+     */
+    private void updateReviewScore(ContentsEntity content) {
+        List<ReviewEntity> contentReviews = reviewRepository.findByCtIdx(content.getCtIdx());
+
+        double scores = contentReviews.stream()
+                .mapToDouble(ReviewEntity::getRvScore)
+                .sum();
+
+        Double contentScore = scores / contentReviews.size();
+        content.updateScore(contentScore);
     }
 }

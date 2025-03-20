@@ -29,7 +29,12 @@ public class ImageEntity {
     private String igPath;
 
     @Column(name = "st_idx", nullable = false)
-    private Long stIdx;
+    @Builder.Default
+    private Long stIdx = 1L;    // (2025.03.13) 현재는 1만 사용
+
+    public void updateImagePath(String igPath) {
+        this.igPath = igPath;
+    }
 
     public void updateIgPath(String paths) {
         this.igPath = paths;

@@ -15,8 +15,12 @@ public record ReviewCreateRequest(
         @NonNull
         Long ctIdx,
 
+        Long igIdx,
+
         @NonNull
-        Double rvScore
+        Double rvScore,
+
+        List<String> igPath
 ) {
     public ReviewEntity ofReview() {
         String usId = LoginUserDTO.get();
@@ -27,5 +31,17 @@ public record ReviewCreateRequest(
                 .rvScore(rvScore)
                 .ctIdx(this.ctIdx)
                 .build();
+    }
+
+    public ImageEntity ofImage(Long rvIdx) {
+        return ImageEntity.builder()
+                .idx(rvIdx)
+                .igType(ImageType.RV)
+                .igPath(concatIgPath())
+                .build();
+    }
+
+    public String concatIgPath() {
+        return String.join(",", igPath);
     }
 }
