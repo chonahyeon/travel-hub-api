@@ -58,6 +58,7 @@ public class ReviewRepositorySupport {
                         reviewEntity.rvText,
                         reviewEntity.usId,
                         reviewEntity.ctIdx,
+                        imageEntity.igIdx,
                         imageEntity.igType,
                         imageEntity.igPath
                 )

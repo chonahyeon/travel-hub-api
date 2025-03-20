@@ -31,7 +31,7 @@ public class ReviewController {
 
     /**
      * 사용자 리뷰 목록 조회
-     * GET /travel/v1/review/user/list
+     * GET /travel/v1/review/list-user
      */
     @GetMapping(LIST_USER)
     public List<ReviewListResponse> findReviewsByUser(Pageable pageable) {
