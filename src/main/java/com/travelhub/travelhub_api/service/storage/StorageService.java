@@ -18,6 +18,7 @@ import com.oracle.bmc.waiter.FixedTimeDelayStrategy;
 import com.oracle.bmc.waiter.MaxAttemptsTerminationStrategy;
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.common.util.FileUtil;
 import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.StorageEntity;
@@ -176,7 +177,8 @@ public class StorageService {
                     log.error("업로드 실패 | {}", uploadDTO.getUploadPath(), error);
                     block.countDown();
                     // 실패건 재시도를 위해 local 에 write
-                    //FileUtil.createFile(uploadFile, uploadDTO.getUploadPath());
+                    // todo : 업로드 실패 건 경로는 정의 해야함.
+                    FileUtil.createFile(uploadDTO.getUploadFileStream(), uploadDTO.getUploadPath());
                 }
             });
 
