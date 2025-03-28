@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.dto.contents;
 
+import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import lombok.Builder;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 public record PlaceDto(
         Long cpIdx,
         Integer cpOrder,
-        String cpType,
+        ContentsPlaceType cpType,
         String cpText,
         Long pcIdx,
         String pcId,

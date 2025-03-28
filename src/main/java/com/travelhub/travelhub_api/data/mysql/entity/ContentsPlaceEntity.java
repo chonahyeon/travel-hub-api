@@ -1,16 +1,17 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
-import com.travelhub.travelhub_api.data.dto.contents.ContentsPlaceWriterDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
 
 @Getter
 @Entity
 @Builder
+@DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "contents_place")

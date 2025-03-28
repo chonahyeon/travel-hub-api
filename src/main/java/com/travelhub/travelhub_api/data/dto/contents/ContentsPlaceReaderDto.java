@@ -1,5 +1,7 @@
 package com.travelhub.travelhub_api.data.dto.contents;
 
+import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +14,7 @@ public record ContentsPlaceReaderDto(
         LocalDateTime updateTime,
         Long cpIdx,
         Integer cpOrder,
-        String cpType,
+        ContentsPlaceType cpType,
         String cpText,
         Long pcIdx,
         String pcId,

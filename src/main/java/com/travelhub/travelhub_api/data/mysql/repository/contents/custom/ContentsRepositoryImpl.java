@@ -65,7 +65,14 @@ public class ContentsRepositoryImpl implements ContentsRepositoryCustom {
         QContentsPlaceEntity contentsPlace = QContentsPlaceEntity.contentsPlaceEntity;
 
         JPAQuery<ContentsListResponse> queryBuilder = query
-                .select(Projections.constructor(ContentsListResponse.class, contents))
+                .selectDistinct(Projections.constructor(ContentsListResponse.class,
+                        contents.ctIdx,
+                        contents.ctTitle,
+                        contents.ctScore,
+                        contents.ctViewCount,
+                        contents.usId,
+                        contents.insertTime,
+                        contents.updateTime))
                 .from(contents);
 
         if (cityName != null && !cityName.isBlank()) {
@@ -76,10 +83,11 @@ public class ContentsRepositoryImpl implements ContentsRepositoryCustom {
 
         if (tags != null && !tags.isEmpty()) {
             queryBuilder.join(contentsTag).on(contents.ctIdx.eq(contentsTag.ctIdx))
-                    .join(tag).on(contentsTag.ctgIdx.eq(tag.tgIdx)).on(tag.tgName.in(tags));
+                    .join(tag).on(contentsTag.tgIdx.eq(tag.tgIdx)).on(tag.tgName.in(tags));
+            queryBuilder.groupBy(contentsTag.ctgIdx, tag.tgIdx);;
         }
 
-        queryBuilder.offset(pageable.getOffset());
+        queryBuilder.offset(pageable.getPageNumber());
         queryBuilder.limit(pageable.getPageSize());
 
         return queryBuilder.fetch();

@@ -10,11 +10,11 @@ import java.util.List;
 public record ContentsListResponse(
         Long ctIdx,
         String ctTitle,
-        String usId,
         Double ctScore,
+        Long ctViewCount,
+        String usId,
         LocalDateTime insertTime,
-        LocalDateTime updateTime,
-        Integer ctViewCount
+        LocalDateTime updateTime
 ) {
 
     public static List<ContentsListResponse> ofList(List<ContentsTagDTO> contentsTagDTOS) {

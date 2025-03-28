@@ -6,7 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TravelRepository extends ElasticsearchRepository<TravelPlace, String> {
     List<TravelPlace> findByPcNameContaining(String pcName, Pageable pageable);
+
+    Optional<TravelPlace> findByPcId(String pcId);
 }

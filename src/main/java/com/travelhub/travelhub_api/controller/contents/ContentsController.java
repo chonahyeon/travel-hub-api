@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.controller.contents;
 
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
+import com.travelhub.travelhub_api.controller.contents.response.ContentsCreateResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsMainListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsResponse;
@@ -26,13 +27,13 @@ public class ContentsController {
     private final ContentsService contentsService;
 
     @PostMapping
-    public void create(@Valid @RequestBody ContentsRequest request) {
-        contentsService.create(request);
+    public ContentsCreateResponse create(@Valid @RequestBody ContentsRequest request) {
+        return contentsService.create(request);
     }
 
     @GetMapping("/{contentsId}")
-    public ResponseEntity<ContentsResponse> get(@PathVariable Long contentsId) {
-        return ResponseEntity.ok(contentsService.get(contentsId));
+    public ContentsResponse get(@PathVariable Long contentsId) {
+        return contentsService.get(contentsId);
     }
 
     @PatchMapping("/{contentsId}")
@@ -46,7 +47,7 @@ public class ContentsController {
     }
 
     @GetMapping(LIST)
-    public List<ContentsListResponse> getList(@RequestParam List<String> tags, @RequestParam String city, Pageable pageable) {
+    public List<ContentsListResponse> getList(@RequestParam(required = false) List<String> tags, @RequestParam(required = false) String city, Pageable pageable) {
         return contentsService.getList(tags, city, pageable);
     }
 

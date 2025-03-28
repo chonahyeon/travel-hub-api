@@ -16,4 +16,7 @@ public interface GoogleMapsClient {
     @GetMapping(value = "${google.place-detail-uri}")
     GooglePlaceDetailsDto getPlacesDetail(@RequestParam("place_id") String placeId, @RequestParam("fields") String fields, @RequestParam("language") String language, @RequestParam("key") String key);
 
+    @GetMapping(value = "${google.place-detail-uri}")
+    String getTest(@RequestParam("place_id") String placeId, @RequestParam("fields") String fields, @RequestParam("language") String language, @RequestParam("key") String key);
+
 }

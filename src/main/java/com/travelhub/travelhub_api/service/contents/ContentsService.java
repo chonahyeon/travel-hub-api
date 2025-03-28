@@ -3,6 +3,7 @@ package com.travelhub.travelhub_api.service.contents;
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
+import com.travelhub.travelhub_api.controller.contents.response.ContentsCreateResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsMainListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsResponse;
@@ -28,7 +29,6 @@ import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class ContentsService {
     @Value("${google.api-key}")
     private String apiKey;
-    private GoogleMapsClient mapsClient;
+    private final GoogleMapsClient mapsClient;
     private final TagRepository tagRepository;
     private final CityRepository cityRepository;
     private final ImageRepository imageRepository;
@@ -59,7 +59,7 @@ public class ContentsService {
 
     private final StorageService storageService;
 
-    public void create(ContentsRequest request) {
+    public ContentsCreateResponse create(ContentsRequest request) {
         // contents 생성
         ContentsEntity contents = contentsRepository.save(request.ofContentsEntity());
         Long contentsIdx = contents.getCtIdx();
@@ -69,6 +69,8 @@ public class ContentsService {
 
         // contents ⟷ places 매핑
         request.places().forEach(contentsPlace -> saveContentsPlace(contentsIdx, contentsPlace));
+
+        return new ContentsCreateResponse(contentsIdx);
     }
 
     public ContentsResponse get(Long contentsId) {
@@ -155,10 +157,11 @@ public class ContentsService {
                             .orElseThrow(() -> new CustomException(ErrorCodes.PLACE_NOT_FOUND));
 
                     // 도시명 조회 from google
-                    String cityName = getPlaceCity(placeInfo.getPcId());
-                    if (null == cityName) {
-                        throw new CustomException(ErrorCodes.PLACE_CITY_NOT_FOUND, placeInfo.getPcName());
-                    }
+//                    String cityName = getPlaceCity(placeInfo.getPcId());
+//                    if (null == cityName) {
+//                        throw new CustomException(ErrorCodes.PLACE_CITY_NOT_FOUND, placeInfo.getPcName());
+//                    }
+                    String cityName = "서울시";
 
                     // 도시 인덱스 조회 from db
                     Long citIdx = cityRepository.findByCitName(cityName)
