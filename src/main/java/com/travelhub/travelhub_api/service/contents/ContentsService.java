@@ -13,10 +13,7 @@ import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
-import com.travelhub.travelhub_api.data.mysql.entity.ContentsEntity;
-import com.travelhub.travelhub_api.data.mysql.entity.ContentsPlaceEntity;
-import com.travelhub.travelhub_api.data.mysql.entity.ContentsTagEntity;
-import com.travelhub.travelhub_api.data.mysql.entity.PlaceEntity;
+import com.travelhub.travelhub_api.data.mysql.entity.*;
 import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.ImageRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.PlaceRepository;
@@ -163,6 +160,7 @@ public class ContentsService {
 //                    }
                     String cityName = "서울시";
 
+                    // todo : 도시 저장
                     // 도시 인덱스 조회 from db
                     Long citIdx = cityRepository.findByCitName(cityName)
                             .orElseThrow(() -> new CustomException(ErrorCodes.CITY_NOT_FOUND))
@@ -174,6 +172,10 @@ public class ContentsService {
                 });
     }
 
+    /*
+     * 장소 상세 조회
+     * = 도시명 조회 파싱으로 바꾸면서 안씀
+     */
     private String getPlaceCity(String placeId){
         String city = null;
 

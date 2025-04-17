@@ -27,8 +27,8 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping
-    public List<PlaceResponse> get(@RequestParam String name, @RequestParam String type, Pageable pageable) {
-        return placeService.get(name, type, pageable);
+    public List<PlaceResponse> get(@RequestParam String name, @RequestParam String type, @RequestParam(name = "cnt_code") String cntCode, Pageable pageable) {
+        return placeService.get(name, type, cntCode, pageable);
     }
 
     /**

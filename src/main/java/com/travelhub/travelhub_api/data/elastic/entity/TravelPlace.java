@@ -4,11 +4,13 @@ import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.data.mysql.entity.PlaceEntity;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 @Getter
 @Builder
+@ToString
 @Document(indexName = "dev_travel")
 public class TravelPlace {
     @Id
@@ -18,6 +20,8 @@ public class TravelPlace {
     private Double pcRating;
     private double pcLng;
     private double pcLat;
+    private String compoundCode;
+    private String citName;
 
     public PlaceResponse ofPlaceResponse() {
         return PlaceResponse.builder()
@@ -27,6 +31,7 @@ public class TravelPlace {
                 .pcRating(this.pcRating)
                 .pcLng(this.pcLng)
                 .pcLat(this.pcLat)
+                .citName(this.citName)
                 .build();
     }
 

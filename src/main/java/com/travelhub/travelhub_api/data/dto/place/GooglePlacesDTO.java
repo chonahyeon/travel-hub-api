@@ -25,6 +25,9 @@ public class GooglePlacesDTO {
 
         private Geometry geometry;
 
+        @JsonProperty("plus_code")
+        private PlusCode plusCode;
+
         @Data
         public static class Geometry {
             private Location location;
@@ -34,6 +37,14 @@ public class GooglePlacesDTO {
                 private double lat;
                 private double lng;
             }
+        }
+
+        @Data
+        public static class PlusCode {
+            @JsonProperty("compound_code")
+            private String compoundCode;
+            @JsonProperty("global_code")
+            private String globalCode;
         }
     }
 }

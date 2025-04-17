@@ -8,6 +8,7 @@ public record PlaceResponse(
         String pcName,
         String pcAddress,
         Double pcRating,
+        String citName,
         double pcLng,
         double pcLat
 ) {

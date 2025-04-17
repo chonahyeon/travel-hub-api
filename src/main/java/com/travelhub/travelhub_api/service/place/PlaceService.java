@@ -3,13 +3,18 @@ package com.travelhub.travelhub_api.service.place;
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
-import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
 import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
+import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO.PlaceResultDto;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.mysql.entity.CityEntity;
+import com.travelhub.travelhub_api.data.mysql.entity.CountryEntity;
+import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
+import com.travelhub.travelhub_api.data.mysql.repository.CountryRepository;
 import com.travelhub.travelhub_api.data.mysql.support.PlaceRepositorySuppport;
 import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,11 +38,14 @@ public class PlaceService {
     private final TravelRepository travelRepository;
     private final PlaceRepositorySuppport placeRepositorySuppport;
     private final StorageService storageService;
+    private final CityRepository cityRepository;
+    private final CountryRepository countryRepository;
+    private final String localeCountryName = Locale.getDefault().getDisplayCountry(Locale.KOREAN);
 
     @Value("${google.api-key}")
     private String apiKey;
 
-    public List<PlaceResponse> get(String name, String type, Pageable pageable) {
+    public List<PlaceResponse> get(String name, String type, String cntCode, Pageable pageable) {
         List<PlaceResponse> response = new ArrayList<>();
         /*
          * searchType
@@ -53,8 +60,24 @@ public class PlaceService {
             }
 
             if (null == places || places.isEmpty()) {
+                // 국가 정보 조회
+                CountryEntity countryEntity = countryRepository.findByCntCode(cntCode)
+                        .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "cnt_code"));
+
                 // google place api 조회
-                List<TravelPlace> googlePlaces = getGooglePlaces(name);
+                List<TravelPlace> googlePlaces = getGooglePlaces(name, countryEntity);
+
+                // Region 설정해도 위치 기반으로 나오는 케이스 방지
+                Locale defaultLocale = Locale.getDefault();
+                String countryNameInKorean = defaultLocale.getDisplayCountry(Locale.KOREAN);
+
+                googlePlaces = googlePlaces.stream()
+                        .filter(info -> {
+                            log.info("{}", !info.getPcAddress().contains(countryNameInKorean));
+                            return !info.getPcAddress().contains(countryNameInKorean);
+                        })
+                        .toList();
+
                 // elasticSearch 저장
                 travelRepository.saveAll(googlePlaces);
 
@@ -75,17 +98,30 @@ public class PlaceService {
         return response;
     }
 
-    private List<TravelPlace> getGooglePlaces(String name){
-        GooglePlacesDTO response = mapsClient.getPlaces(name, "ko", apiKey);
+    private List<TravelPlace> getGooglePlaces(String name, CountryEntity countryEntity){
+        GooglePlacesDTO response = mapsClient.getPlaces(name, "ko", apiKey, countryEntity.getCntCode());
 
-        List<TravelPlace> places = response.getResults().stream().map(result -> TravelPlace.builder()
-                .pcName(result.getName())
-                .pcAddress(result.getFormattedAddress())
-                .pcRating(result.getRating())
-                .pcLng(result.getGeometry().getLocation().getLng())
-                .pcLat(result.getGeometry().getLocation().getLat())
-                .pcId(result.getPlaceId())
-                .build()).collect(Collectors.toList());
+        List<TravelPlace> places = response.getResults().stream()
+                .map(result -> {
+                    // 도시 정보 추가.
+                    String citName = parseAddressToCity(result, countryEntity);
+                    TravelPlace formattedPlace = null;
+                    if (citName != null) {
+                        formattedPlace =  TravelPlace.builder()
+                                .pcName(result.getName())
+                                .pcAddress(result.getFormattedAddress())
+                                .pcRating(result.getRating())
+                                .pcLng(result.getGeometry().getLocation().getLng())
+                                .pcLat(result.getGeometry().getLocation().getLat())
+                                .pcId(result.getPlaceId())
+                                .compoundCode(result.getPlusCode() != null ? result.getPlusCode().getCompoundCode() : null)
+                                .citName(citName)
+                                .build();
+                    }
+                    return formattedPlace;
+                })
+                .filter(Objects::nonNull)
+                .toList();
 
         if (places.isEmpty()) {
             throw new NoSuchElementException();
@@ -110,5 +146,50 @@ public class PlaceService {
         }
 
         return places.subList(start, end);
+    }
+
+    /**
+     * 주소에서 도시 파싱
+     * @param placeResultDto 조회 정보
+     * @param countryEntity 국가 정보
+     */
+    private String parseAddressToCity(PlaceResultDto placeResultDto, CountryEntity countryEntity) {
+        String compoundCode = (placeResultDto.getPlusCode() != null ? placeResultDto.getPlusCode().getCompoundCode() : null);
+        String formattedAddress = placeResultDto.getFormattedAddress();
+        String cityName = "";
+
+        if (formattedAddress.contains(localeCountryName)) {
+            log.info("로컬 리전 포함 Return 생략 : {}", formattedAddress);
+            return null;
+        }
+
+        switch (countryEntity.getCntCode()) {
+            case "JP" -> {
+                // compound code 정보가 있을 때
+                if (compoundCode != null) {
+                    String[] split = compoundCode.split(" ");
+                    String rawCityName = split[split.length - 1];
+                    /*
+                     * 오사카부 -> 오사카
+                     * 도쿄도 -> 도쿄
+                     */
+                    cityName = rawCityName.substring(0, rawCityName.length() - 1);
+                } else {
+                    // 도/부/현 추출용 정규표현식
+                    Pattern pattern = Pattern.compile("(\\S+?[도부현])");
+                    Matcher matcher = pattern.matcher(formattedAddress);
+                    if (matcher.find()) {
+                        cityName = matcher.group(1);
+                    }
+                }
+            }
+            case "KR" -> {
+                String[] split = formattedAddress.split(" ");
+                cityName = split[0];
+            }
+        };
+
+        log.info("주소 : {} -> {}", formattedAddress, cityName);
+        return cityName;
     }
 }

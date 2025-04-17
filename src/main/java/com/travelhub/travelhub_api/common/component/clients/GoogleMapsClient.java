@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface GoogleMapsClient {
 
     @GetMapping(value = "${google.place-uri}")
-    GooglePlacesDTO getPlaces(@RequestParam("query") String query, @RequestParam("language") String language, @RequestParam("key") String key);
+    GooglePlacesDTO getPlaces(@RequestParam("query") String query, @RequestParam("language") String language, @RequestParam("key") String key, @RequestParam("region") String region);
 
     @GetMapping(value = "${google.place-detail-uri}")
     GooglePlaceDetailsDto getPlacesDetail(@RequestParam("place_id") String placeId, @RequestParam("fields") String fields, @RequestParam("language") String language, @RequestParam("key") String key);
