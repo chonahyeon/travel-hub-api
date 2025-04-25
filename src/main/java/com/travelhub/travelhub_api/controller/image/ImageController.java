@@ -3,12 +3,17 @@ package com.travelhub.travelhub_api.controller.image;
 import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.service.image.ImageService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 
@@ -24,8 +29,10 @@ public class ImageController {
      * POST /travel/v1/image/upload
      */
     @PostMapping(value = UPLOAD, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public List<String> upload(@RequestPart(name = "files") List<MultipartFile> files,
-                               @RequestParam(name = "igType") ImageType igType) {
+    public Map<String,List<String>> upload(HttpServletRequest request, @RequestParam(name = "igType") ImageType igType) {
+        MultipartRequest multipartRequest = (MultipartRequest) request;
+        MultiValueMap<String, MultipartFile> multiFileMap = multipartRequest.getMultiFileMap();
+        Map<String, List<MultipartFile>> files = new HashMap<>(multiFileMap);
         return imageService.uploadImage(files, igType);
     }
 

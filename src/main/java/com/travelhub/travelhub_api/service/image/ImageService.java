@@ -16,11 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -48,14 +47,14 @@ public class ImageService {
     /**
      * 이미지 업로드 진행
      *
-     * @param images    멀티 파트
+     * @param imageMap    멀티 파트
      * @param igType 이미지 타입 (RV, CT) / 매핑 idx
      */
-    public List<String> uploadImage(List<MultipartFile> images, ImageType igType) {
+    public Map<String, List<String>> uploadImage(Map<String, List<MultipartFile>> imageMap, ImageType igType) {
         // 업로드 정보
         List<UploadDTO> uploadDTOS = new ArrayList<>();
         // 임의로 경로 먼저 생성
-        List<String> randomPath = getRandomPath(igType, images, uploadDTOS);
+        Map<String, List<String>> randomPath = getRandomPath(igType, imageMap, uploadDTOS);
         storageService.uploadFiles(uploadDTOS);
         return randomPath;
     }
@@ -75,29 +74,36 @@ public class ImageService {
     /*
      * 이미지 업로드 경로 생성 (이미지 타입별 root 경로 다름)
      */
-    private List<String> getRandomPath(ImageType imageType, List<MultipartFile> images, List<UploadDTO> uploadDTOS) {
+    private Map<String, List<String>> getRandomPath(ImageType imageType, Map<String, List<MultipartFile>> imageMap, List<UploadDTO> uploadDTOS) {
         LocalDate now = LocalDate.now();
         String parent = now.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "/";
-        List<String> randomPaths = new ArrayList<>();
+        Map<String, List<String>> randomPaths = new HashMap<>();
 
-        for (MultipartFile image : images) {
-            String fileName = UUID.randomUUID() + ".jpg";
-            String uploadPath = imageType.getUploadPath() + parent + fileName;
+        for (String place : imageMap.keySet()) {
+            List<String> returnImages = randomPaths.getOrDefault(place, new ArrayList<>());
+            List<MultipartFile> multipartFiles = imageMap.get(place);
 
-            try {
-                UploadDTO uploadDTO = UploadDTO.builder()
-                        .uploadPath(uploadPath)
-                        .uploadFileStream(image.getInputStream())
-                        .size(image.getSize())
-                        .build();
+            for (MultipartFile image : multipartFiles) {
+                String fileName = UUID.randomUUID() + ".jpg";
+                String uploadPath = imageType.getUploadPath() + parent + fileName;
 
-                randomPaths.add(uploadPath);
-                uploadDTOS.add(uploadDTO);
-            } catch (Exception e) {
-                log.error("getRandomPath() : 파일 스트림 할당 실패 ", e);
-                throw new CustomException(ErrorCodes.SERVER_ERROR);
+                try {
+                    UploadDTO uploadDTO = UploadDTO.builder()
+                            .uploadPath(uploadPath)
+                            .uploadFileStream(new BufferedInputStream(image.getInputStream()))
+                            .size(image.getSize())
+                            .build();
+
+                    returnImages.add(uploadPath);
+                    uploadDTOS.add(uploadDTO);
+                } catch (Exception e) {
+                    log.error("getRandomPath() : 파일 스트림 할당 실패 ", e);
+                    throw new CustomException(ErrorCodes.SERVER_ERROR);
+                }
             }
+            randomPaths.put(place, returnImages);
         }
+
 
         return randomPaths;
     }

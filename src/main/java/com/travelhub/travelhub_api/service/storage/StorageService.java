@@ -136,6 +136,15 @@ public class StorageService {
             blockLatch.await();
         } catch (Exception e) {
             log.error("uploadFiles() : ", e);
+        } finally {
+            // 리소스 해제
+            for (UploadDTO uploadDTO : uploadDTOS) {
+                try {
+                    uploadDTO.getUploadFileStream().close();
+                } catch (IOException e) {
+                    log.error("closeInputStream() : ", e);
+                }
+            }
         }
     }
 
