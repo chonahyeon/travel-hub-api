@@ -34,14 +34,6 @@ public record ContentsPlaceWriterDto(
                 .build();
     }
 
-    public ContentsPlaceEntity ofUpdateContentsPlaceEntity() {
-        return ContentsPlaceEntity.builder()
-                .cpIdx(this.cpIdx)
-                .cpOrder(this.cpOrder)
-                .cpText(this.text)
-                .build();
-    }
-
     public String convertImages() {
         StringBuilder sb = new StringBuilder();
         IntStream.range(0, images.size()).forEachOrdered(i -> {

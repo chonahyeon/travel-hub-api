@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -96,17 +97,16 @@ public class ContentsService {
     }
 
     public void update(Long contentsId, ContentsRequest request) {
-        ContentsResponse contentSummary = get(contentsId);
+        ContentsUpdateDto contentsSummary = getContents(contentsId);
 
         // 제목 업데이트
-        updateContentsTitle(contentsId, request.title());
+        contentsSummary.contents().updateTitle(request.title());
 
         // 태그 업데이트
-        updateTag(contentsId, contentSummary.tags().stream().map(TagDto::tgIdx).toList(), request.tags());
+        updateTag(contentsId, contentsSummary.tags().stream().map(TagDto::tgIdx).toList(), request.tags());
 
         // 장소 업데이트
-        updatePlace(contentsId, contentSummary.places(), request.places());
-
+        updatePlace(contentsId, request.places(), contentsSummary);
     }
 
     public void delete(Long contentsId) {
@@ -136,12 +136,11 @@ public class ContentsService {
         imageRepository.save(reqContentsPlace.ofImageEntity(contentsPlace.getCpIdx()));
     }
 
-    private void updateContentsPlace(ContentsPlaceWriterDto reqContentsPlace) {
-        contentsPlaceRepository.save(reqContentsPlace.ofUpdateContentsPlaceEntity());
-        imageRepository.findByIdxAndIgType(reqContentsPlace.cpIdx(), ImageType.CT)
-                .ifPresent(image -> {
-                    image.updateIgPath(reqContentsPlace.convertImages());
-                });
+    private void updateContentsPlace(ContentsPlaceWriterDto reqContentsPlace, ContentsPlaceDto currContentsPlace) {
+        // update `contents_place`
+        currContentsPlace.contentsPlace().updatePlaceText(reqContentsPlace);
+        // update `image`
+        currContentsPlace.image().updateIgPath(reqContentsPlace.convertImages());
     }
 
     private Long getPlace(String placeId) {
@@ -153,16 +152,8 @@ public class ContentsService {
                     TravelPlace placeInfo = travelRepository.findById(placeId)
                             .orElseThrow(() -> new CustomException(ErrorCodes.PLACE_NOT_FOUND));
 
-                    // 도시명 조회 from google
-//                    String cityName = getPlaceCity(placeInfo.getPcId());
-//                    if (null == cityName) {
-//                        throw new CustomException(ErrorCodes.PLACE_CITY_NOT_FOUND, placeInfo.getPcName());
-//                    }
-                    String cityName = "서울시";
-
-                    // todo : 도시 저장
                     // 도시 인덱스 조회 from db
-                    Long citIdx = cityRepository.findByCitName(cityName)
+                    Long citIdx = cityRepository.findByCitName(placeInfo.getCitName())
                             .orElseThrow(() -> new CustomException(ErrorCodes.CITY_NOT_FOUND))
                             .getCitIdx();
 
@@ -195,11 +186,8 @@ public class ContentsService {
     }
 
     private void updateTag(Long contentIdx, List<Long> currTags, List<Long> reqTags) {
-        List<ContentsTagEntity> saveList;
-        List<ContentsTagEntity> deleteList;
-
         // 추가
-        saveList = reqTags.stream()
+        List<ContentsTagEntity> saveList = reqTags.stream()
                 .filter(idx -> !currTags.contains(idx))
                 .map(idx -> ContentsTagEntity.builder()
                         .ctIdx(contentIdx)
@@ -212,52 +200,47 @@ public class ContentsService {
         }
 
         // 삭제
-        deleteList = currTags.stream()
+        List<DeleteTagDto> deleteList = currTags.stream()
                 .filter(idx -> !reqTags.contains(idx))
-                .map(idx -> ContentsTagEntity.builder()
+                .map(idx -> DeleteTagDto.builder()
                         .ctIdx(contentIdx)
                         .tgIdx(idx)
                         .build())
                 .collect(Collectors.toList());
 
         if (!deleteList.isEmpty()) {
-            contentsTagRepository.deleteAll(deleteList);
+            contentsTagRepository.deleteAllByTags(deleteList);
         }
     }
 
-    private void updatePlace(Long ctIdx, List<PlaceDto> currPlaces, List<ContentsPlaceWriterDto> reqPlaces) {
+    private void updatePlace(Long ctIdx, List<ContentsPlaceWriterDto> reqPlaces, ContentsUpdateDto contentsSummary) {
+        Map<String, ContentsPlaceDto> currPlaces = contentsSummary.contentsPlace().stream()
+                .collect(Collectors.toMap(
+                        contentsPlace -> contentsPlace.place().getPcId(),
+                        contentsPlace -> contentsPlace, (a, b) -> b)
+                );
         List<String> reqPlaceIds = reqPlaces.stream().map(ContentsPlaceWriterDto::pcId).toList();
-        List<String> currPlaceIds = currPlaces.stream().map(PlaceDto::pcId).toList();
 
-        // 추가
-        reqPlaces.stream()
-                .filter(reqPlace -> !currPlaceIds.contains(reqPlace.pcId()))
-                .forEach(reqPlace -> saveContentsPlace(ctIdx, reqPlace));
-
-        // 변경
-        reqPlaces.stream()
-                .filter(reqPlace -> currPlaceIds.contains(reqPlace.pcId()))
-                .forEach(this::updateContentsPlace);
+        for (ContentsPlaceWriterDto reqPlace : reqPlaces) {
+            if (currPlaces.containsKey(reqPlace.pcId())) {
+                // 변경
+                updateContentsPlace(reqPlace, currPlaces.get(reqPlace.pcId()));
+            } else {
+                // 추가
+                saveContentsPlace(ctIdx, reqPlace);
+            }
+        }
 
         // 삭제
-        currPlaces.stream()
-                .filter(currPlace -> !reqPlaceIds.contains(currPlace.pcId()))
-                .map(PlaceDto::cpIdx)
+        currPlaces.values().stream()
+                .filter(contentsPlaceDto -> !reqPlaceIds.contains(contentsPlaceDto.place().getPcId()))
+                .map(contentsPlaceDto -> contentsPlaceDto.contentsPlace().getCpIdx())
                 .forEach(contentsPlaceIdx -> {
                     // delete `contents_place`
                     contentsPlaceRepository.deleteByCpIdx(contentsPlaceIdx);
                     // delete `image`
                     imageRepository.deleteByIdxAndIgType(contentsPlaceIdx, ImageType.CT);
-                });
-    }
-
-    private void updateContentsTitle(Long ctIdx, String title) {
-        ContentsEntity contents = ContentsEntity.builder()
-                .ctIdx(ctIdx)
-                .ctTitle(title)
-                .build();
-
-        contentsRepository.save(contents);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -282,5 +265,23 @@ public class ContentsService {
             responses.add(response);
         }
         return responses;
+    }
+
+    private ContentsUpdateDto getContents(Long contentsId) {
+        // content with place 조회
+        List<ContentsSummaryDto> contentsSummary = contentsRepository.findContentsSummaryByContentsIdx(contentsId);
+        if (contentsSummary.isEmpty()) {
+            throw new CustomException(ErrorCodes.CONTENTS_NOT_FOUND);
+        }
+
+        List<ContentsPlaceDto> contentsPlaces = contentsSummary.stream()
+                .map(ContentsSummaryDto::ofContentsPlace)
+                .collect(Collectors.toList());
+
+        return ContentsUpdateDto.builder()
+                .contents(contentsSummary.get(0).contents())
+                .contentsPlace(contentsPlaces)
+                .tags(tagRepository.findTagsByContentsIdx(contentsId))
+                .build();
     }
 }

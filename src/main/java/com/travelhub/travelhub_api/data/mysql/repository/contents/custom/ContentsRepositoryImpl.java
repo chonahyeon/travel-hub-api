@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
 import com.travelhub.travelhub_api.data.dto.contents.ContentsPlaceReaderDto;
+import com.travelhub.travelhub_api.data.dto.contents.ContentsSummaryDto;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.data.mysql.entity.*;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +92,28 @@ public class ContentsRepositoryImpl implements ContentsRepositoryCustom {
         queryBuilder.limit(pageable.getPageSize());
 
         return queryBuilder.fetch();
+    }
+
+    @Override
+    public List<ContentsSummaryDto> findContentsSummaryByContentsIdx(Long ctIdx) {
+        QImageEntity image = QImageEntity.imageEntity;
+        QPlaceEntity place = QPlaceEntity.placeEntity;
+        QContentsEntity contents = QContentsEntity.contentsEntity;
+        QContentsPlaceEntity contentsPlace = QContentsPlaceEntity.contentsPlaceEntity;
+
+        return query
+                .select(Projections.constructor(ContentsSummaryDto.class,
+                        contents,
+                        contentsPlace,
+                        place,
+                        image
+                ))
+                .from(contents)
+                .leftJoin(contentsPlace).on(contents.ctIdx.eq(contentsPlace.ctIdx))
+                .leftJoin(place).on(contentsPlace.pcIdx.eq(place.pcIdx))
+                .leftJoin(image).on(contentsPlace.cpIdx.eq(image.idx)).on(imageEntity.igType.eq(ImageType.CT))
+                .where(contents.ctIdx.eq(ctIdx))
+                .fetch();
     }
 
 }
