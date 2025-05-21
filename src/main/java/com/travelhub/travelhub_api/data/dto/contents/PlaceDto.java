@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.dto.contents;
 
+import com.travelhub.travelhub_api.data.dto.image.ImagePathsDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import lombok.Builder;
 
@@ -17,6 +18,6 @@ public record PlaceDto(
         Double pcLat,
         String pcName,
         Double pcRating,
-        List<String> igPath
+        List<ImagePathsDto> images
 ) {
 }

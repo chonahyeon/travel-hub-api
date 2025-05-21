@@ -11,7 +11,6 @@ import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
-import com.travelhub.travelhub_api.data.mysql.entity.CityEntity;
 import com.travelhub.travelhub_api.data.mysql.entity.CountryEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.CountryRepository;
@@ -62,7 +61,7 @@ public class PlaceService {
             if (null == places || places.isEmpty()) {
                 // 국가 정보 조회
                 CountryEntity countryEntity = countryRepository.findByCntCode(cntCode)
-                        .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "cnt_code"));
+                        .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "countryCode"));
 
                 // google place api 조회
                 List<TravelPlace> googlePlaces = getGooglePlaces(name, countryEntity);

@@ -36,7 +36,6 @@ public class TravelPlace {
     }
 
     public PlaceEntity ofPlaceEntity(Long citIdx) {
-        // Todo 장소 정보 추가 필요
         return PlaceEntity.builder()
                 .pcName(this.pcName)
                 .pcAddress(this.pcAddress)
