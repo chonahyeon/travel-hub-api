@@ -1,24 +1,25 @@
 package com.travelhub.travelhub_api.service.place;
 
-import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
+import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV1;
+import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV2;
+import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
 import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
 import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlaceRequestDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
-import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO.PlaceResultDto;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlacesV2DTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.CountryEntity;
-import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.CountryRepository;
 import com.travelhub.travelhub_api.data.mysql.support.PlaceRepositorySuppport;
 import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,16 +34,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlaceService {
 
-    private final GoogleMapsClient mapsClient;
+    private final GoogleMapsClientV1 mapsClient;
+    private final GoogleMapsClientV2 mapsClientV2;
     private final TravelRepository travelRepository;
     private final PlaceRepositorySuppport placeRepositorySuppport;
     private final StorageService storageService;
-    private final CityRepository cityRepository;
     private final CountryRepository countryRepository;
-    private final String localeCountryName = Locale.getDefault().getDisplayCountry(Locale.KOREAN);
-
-    @Value("${google.api-key}")
-    private String apiKey;
 
     public List<PlaceResponse> get(String name, String type, String cntCode, Pageable pageable) {
         List<PlaceResponse> response = new ArrayList<>();
@@ -64,18 +61,8 @@ public class PlaceService {
                         .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "countryCode"));
 
                 // google place api 조회
-                List<TravelPlace> googlePlaces = getGooglePlaces(name, countryEntity);
-
-                // Region 설정해도 위치 기반으로 나오는 케이스 방지
-                Locale defaultLocale = Locale.getDefault();
-                String countryNameInKorean = defaultLocale.getDisplayCountry(Locale.KOREAN);
-
-                googlePlaces = googlePlaces.stream()
-                        .filter(info -> {
-                            log.info("{}", !info.getPcAddress().contains(countryNameInKorean));
-                            return !info.getPcAddress().contains(countryNameInKorean);
-                        })
-                        .toList();
+                GooglePlaceRequestDTO requestDTO = GooglePlaceRequestDTO.of(name, countryEntity.getCntCode());
+                List<TravelPlace> googlePlaces = getGooglePlacesV2(requestDTO);
 
                 // elasticSearch 저장
                 travelRepository.saveAll(googlePlaces);
@@ -97,13 +84,18 @@ public class PlaceService {
         return response;
     }
 
+    /*
+     * 구글맵 검색 V1
+     */
     private List<TravelPlace> getGooglePlaces(String name, CountryEntity countryEntity){
-        GooglePlacesDTO response = mapsClient.getPlaces(name, "ko", apiKey, countryEntity.getCntCode());
+        GooglePlacesDTO response = mapsClient.getPlaces(name, "ko", TravelHubResource.googleMapKey, countryEntity.getCntCode());
 
         List<TravelPlace> places = response.getResults().stream()
                 .map(result -> {
                     // 도시 정보 추가.
-                    String citName = parseAddressToCity(result, countryEntity);
+                    String compoundCode = (result.getPlusCode() != null ? result.getPlusCode().getCompoundCode() : null);
+                    String citName = parseAddressToCity(compoundCode, result.getFormattedAddress(), countryEntity.getCntCode());
+
                     TravelPlace formattedPlace = null;
                     if (citName != null) {
                         formattedPlace =  TravelPlace.builder()
@@ -129,6 +121,25 @@ public class PlaceService {
         return places;
     }
 
+    /**
+     * 구글맵 검색 v2
+     * @param requestDTO request body
+     */
+    private List<TravelPlace> getGooglePlacesV2(GooglePlaceRequestDTO requestDTO) {
+        GooglePlacesV2DTO places = mapsClientV2.getPlaces(TravelHubResource.googleMapSearchFields, requestDTO);
+        // formatting
+        List<TravelPlace> travelPlaces = places.getPlaces()
+                .stream()
+                .map(place -> {
+                    String compoundCode = (place.getPlusCode() != null ? place.getPlusCode().getCompoundCode() : null);
+                    String citName = parseAddressToCity(compoundCode, place.getFormattedAddress(), requestDTO.getRegionCode());
+                    return place.of(citName);
+                })
+                .toList();
+        if (travelPlaces.isEmpty()) throw new NoSuchElementException();
+        return travelPlaces;
+    }
+
     @Transactional(readOnly = true)
     public List<MainPlaceResponse> findMainPlaces() {
         List<MainPlaceListDTO> mainPlaces = placeRepositorySuppport.findMainPlaces();
@@ -149,20 +160,13 @@ public class PlaceService {
 
     /**
      * 주소에서 도시 파싱
-     * @param placeResultDto 조회 정보
-     * @param countryEntity 국가 정보
+     * @param compoundCode 구글맵 응답
+     * @param formattedAddress 구글맵 응답
+     * @param cntCode 국가 코드
      */
-    private String parseAddressToCity(PlaceResultDto placeResultDto, CountryEntity countryEntity) {
-        String compoundCode = (placeResultDto.getPlusCode() != null ? placeResultDto.getPlusCode().getCompoundCode() : null);
-        String formattedAddress = placeResultDto.getFormattedAddress();
+    private String parseAddressToCity(String compoundCode, String formattedAddress, String cntCode) {
         String cityName = "";
-
-        if (formattedAddress.contains(localeCountryName)) {
-            log.info("로컬 리전 포함 Return 생략 : {}", formattedAddress);
-            return null;
-        }
-
-        switch (countryEntity.getCntCode()) {
+        switch (cntCode.toUpperCase()) {
             case "JP" -> {
                 // compound code 정보가 있을 때
                 if (compoundCode != null) {
@@ -186,7 +190,7 @@ public class PlaceService {
                 String[] split = formattedAddress.split(" ");
                 cityName = split[0];
             }
-        };
+        }
 
         log.info("주소 : {} -> {}", formattedAddress, cityName);
         return cityName;

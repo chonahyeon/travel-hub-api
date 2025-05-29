@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.service.contents;
 
-import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClient;
+import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV1;
+import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsCreateResponse;
@@ -8,7 +9,7 @@ import com.travelhub.travelhub_api.controller.contents.response.ContentsListResp
 import com.travelhub.travelhub_api.controller.contents.response.ContentsMainListResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsResponse;
 import com.travelhub.travelhub_api.data.dto.contents.*;
-import com.travelhub.travelhub_api.data.dto.place.GooglePlaceDetailsDto;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlaceDetailsDTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.ImageType;
@@ -25,13 +26,11 @@ import com.travelhub.travelhub_api.data.mysql.support.ContentsRepositorySupport;
 import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,9 +40,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(rollbackFor = Exception.class)
 public class ContentsService {
-    @Value("${google.api-key}")
-    private String apiKey;
-    private final GoogleMapsClient mapsClient;
+    private final GoogleMapsClientV1 mapsClient;
     private final TagRepository tagRepository;
     private final CityRepository cityRepository;
     private final ImageRepository imageRepository;
@@ -169,15 +166,14 @@ public class ContentsService {
      */
     private String getPlaceCity(String placeId){
         String city = null;
-
-        GooglePlaceDetailsDto placesDetail = mapsClient.getPlacesDetail(placeId, "address_component", "ko", apiKey);
+        GooglePlaceDetailsDTO placesDetail = mapsClient.getPlacesDetail(placeId, "address_component", "ko", TravelHubResource.googleMapKey);
 
         if (placesDetail != null && placesDetail.getResults() != null) {
             city = placesDetail.getResults().stream()
                     .filter(result -> result.getAddressComponents() != null)
                     .flatMap(result -> result.getAddressComponents().stream())
                     .filter(component -> component.getTypes() != null && component.getTypes().contains("locality"))
-                    .map(GooglePlaceDetailsDto.AddressComponent::getShortName)
+                    .map(GooglePlaceDetailsDTO.AddressComponent::getShortName)
                     .findFirst()
                     .orElse(null);
         }

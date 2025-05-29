@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class GooglePlaceDetailsDto {
+public class GooglePlaceDetailsDTO {
 
     @JsonProperty("results")
     private List<Result> results;

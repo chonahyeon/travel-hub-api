@@ -1,6 +1,8 @@
 package com.travelhub.travelhub_api.common.configuration;
 
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
+import com.travelhub.travelhub_api.data.mysql.entity.common.ServiceKeyEntity;
+import com.travelhub.travelhub_api.data.mysql.repository.common.ServiceKeyRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.*;
 public class Properties {
 
     private final Environment environment;
+    private final ServiceKeyRepository serviceKeyRepository;
 
     private final Map<String, Object> properties = new HashMap<>();
     private final String CONFIG_FILE = "travel-hub.config.import";
@@ -35,6 +38,16 @@ public class Properties {
         ymlPath = environment.getProperty(CONFIG_FILE);
         log.info("{}", ymlPath);
         reloadYaml(System.currentTimeMillis());
+        initServiceKey();
+    }
+
+    /**
+     * 구글맵 키 정보 DB 이전
+     */
+    private void initServiceKey() {
+        // 구글맵 키 정보
+        ServiceKeyEntity target = serviceKeyRepository.findTopBy();
+        TravelHubResource.googleMapKey = target.getSkMapKey();
     }
 
     public void reloadProperties() {
@@ -88,6 +101,7 @@ public class Properties {
         TravelHubResource.STORAGE_CONFIG = get("storage.config.path", String.class, null);
         TravelHubResource.authEnabled = get("auth.enable", Boolean.class, null);
         TravelHubResource.testUser = get("auth.user", String.class, null);
+        TravelHubResource.googleMapSearchFields = get("google.search-fields", String.class, null);
     }
 
     private Map<String, Object> flatten(Map<String, Object> map) {

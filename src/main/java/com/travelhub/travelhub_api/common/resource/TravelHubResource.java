@@ -28,6 +28,8 @@ public class TravelHubResource {
 
     public static Boolean authEnabled;
     public static String testUser;
+    public static String googleMapKey;
+    public static String googleMapSearchFields;
 
     /*
      * 이미지
