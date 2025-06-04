@@ -4,6 +4,7 @@ import com.travelhub.travelhub_api.data.dto.image.ImagePathsDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,12 +39,16 @@ public record ContentsPlaceReaderDto(
 
     public PlaceDto ofPlace(String domain) {
 
-        List<ImagePathsDto> images = Arrays.stream(this.igPath.split(","))
-                .map(path -> ImagePathsDto.builder()
-                        .url(domain + path)
-                        .igPath(path)
-                        .build())
-                .collect(Collectors.toList());
+        List<ImagePathsDto> images = new ArrayList<>();
+
+        if (null != this.igPath) {
+            images = Arrays.stream(this.igPath.split(","))
+                    .map(path -> ImagePathsDto.builder()
+                            .url(domain + path)
+                            .igPath(path)
+                            .build())
+                    .collect(Collectors.toList());
+        }
 
         return PlaceDto.builder()
                 .cpIdx(this.cpIdx)
