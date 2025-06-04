@@ -5,7 +5,7 @@ import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
 import com.travelhub.travelhub_api.data.dto.image.BestImageListDTO;
 import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
 import com.travelhub.travelhub_api.data.enums.ImageType;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.ImageEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.ImageRepository;
 import com.travelhub.travelhub_api.data.mysql.support.ImageRepositorySupport;
@@ -66,7 +66,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(Long igIdx) {
         ImageEntity imageEntity = imageRepository.findById(igIdx)
-                .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "igIdx"));
+                .orElseThrow(() -> new CustomException(ResponseCodes.INVALID_PARAM, "igIdx"));
         storageService.deleteFile(imageEntity.getIgPath());
         imageRepository.deleteById(imageEntity.getIgIdx());
     }
@@ -98,7 +98,7 @@ public class ImageService {
                     uploadDTOS.add(uploadDTO);
                 } catch (Exception e) {
                     log.error("getRandomPath() : 파일 스트림 할당 실패 ", e);
-                    throw new CustomException(ErrorCodes.SERVER_ERROR);
+                    throw new CustomException(ResponseCodes.SERVER_ERROR);
                 }
             }
             randomPaths.put(place, returnImages);

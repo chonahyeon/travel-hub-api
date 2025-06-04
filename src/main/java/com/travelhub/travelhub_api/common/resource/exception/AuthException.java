@@ -1,15 +1,15 @@
 package com.travelhub.travelhub_api.common.resource.exception;
 
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import lombok.Getter;
 
 @Getter
 public class AuthException extends RuntimeException {
 
-    public final ErrorCodes errorCodes;
+    public final ResponseCodes responseCodes;
 
-    public AuthException(ErrorCodes errorCodes) {
-        super(errorCodes.getMessage());
-        this.errorCodes = errorCodes;
+    public AuthException(ResponseCodes responseCodes) {
+        super(responseCodes.getMessage());
+        this.responseCodes = responseCodes;
     }
 }

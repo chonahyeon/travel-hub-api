@@ -1,8 +1,8 @@
 package com.travelhub.travelhub_api.common.component.common;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
-import com.travelhub.travelhub_api.controller.common.response.ErrorResponse;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.controller.common.response.ApiResponse;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -21,31 +21,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                           HttpHeaders headers,
                                                                           HttpStatusCode status,
                                                                           WebRequest request) {
-        ErrorCodes errorCode = ErrorCodes.INVALID_PARAM;
-
-        ErrorResponse response = ErrorResponse.builder()
-                .code(errorCode.getCode())
-                .message(String.format(errorCode.getMessage(), ex.getParameterName()))
-                .build();
+        ResponseCodes errorCode = ResponseCodes.INVALID_PARAM;
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(response);
+                .body(ApiResponse.of(errorCode.getCode(), String.format(errorCode.getMessage(), ex.getParameterName())));
     }
 
     // 상황에 맞는 에러 지정하여 응답
     @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
-        ErrorCodes errorCode = ex.getErrorCode();
-
-        ErrorResponse response = ErrorResponse.builder()
-                .code(errorCode.getCode())
-                .message(ex.getMessage())
-                .build();
+    protected ResponseEntity<Object> handleCustomException(CustomException ex) {
+        ResponseCodes errorCode = ex.getErrorCode();
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(response);
+                .body(ApiResponse.of(errorCode.getCode(), ex.getFormattedMessage()));
     }
 
 

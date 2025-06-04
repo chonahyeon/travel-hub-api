@@ -12,7 +12,7 @@ import com.travelhub.travelhub_api.data.dto.place.GooglePlaceDetailsDto;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.ImageType;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.*;
 import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.ImageRepository;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -75,7 +74,7 @@ public class ContentsService {
         // content with place 조회
         List<ContentsPlaceReaderDto> contentsPlaceList = contentsRepository.findContentsWithPlacesByContentsIdx(contentsId);
         if (contentsPlaceList.isEmpty()) {
-            throw new CustomException(ErrorCodes.CONTENTS_NOT_FOUND);
+            throw new CustomException(ResponseCodes.CONTENTS_NOT_FOUND);
         }
 
         // content, place 분기 처리
@@ -150,11 +149,11 @@ public class ContentsService {
                 .orElseGet(() -> { // 장소 신규 등록
                     // 임시 저장 된 장소 조회 from elasticsearch
                     TravelPlace placeInfo = travelRepository.findById(placeId)
-                            .orElseThrow(() -> new CustomException(ErrorCodes.PLACE_NOT_FOUND));
+                            .orElseThrow(() -> new CustomException(ResponseCodes.PLACE_NOT_FOUND));
 
                     // 도시 인덱스 조회 from db
                     Long citIdx = cityRepository.findByCitName(placeInfo.getCitName())
-                            .orElseThrow(() -> new CustomException(ErrorCodes.CITY_NOT_FOUND))
+                            .orElseThrow(() -> new CustomException(ResponseCodes.CITY_NOT_FOUND))
                             .getCitIdx();
 
                     PlaceEntity place = placeInfo.ofPlaceEntity(citIdx);
@@ -271,7 +270,7 @@ public class ContentsService {
         // content with place 조회
         List<ContentsSummaryDto> contentsSummary = contentsRepository.findContentsSummaryByContentsIdx(contentsId);
         if (contentsSummary.isEmpty()) {
-            throw new CustomException(ErrorCodes.CONTENTS_NOT_FOUND);
+            throw new CustomException(ResponseCodes.CONTENTS_NOT_FOUND);
         }
 
         List<ContentsPlaceDto> contentsPlaces = contentsSummary.stream()

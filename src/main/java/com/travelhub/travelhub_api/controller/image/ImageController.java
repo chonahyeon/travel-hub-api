@@ -1,11 +1,12 @@
 package com.travelhub.travelhub_api.controller.image;
 
-import com.travelhub.travelhub_api.controller.image.response.BestImageResponse;
+import com.travelhub.travelhub_api.controller.common.response.ApiResponse;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.service.image.ImageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,11 +30,12 @@ public class ImageController {
      * POST /travel/v1/image/upload
      */
     @PostMapping(value = UPLOAD, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String,List<String>> upload(HttpServletRequest request, @RequestParam(name = "igType") ImageType igType) {
+    public ResponseEntity<Object> upload(HttpServletRequest request, @RequestParam(name = "igType") ImageType igType) {
         MultipartRequest multipartRequest = (MultipartRequest) request;
         MultiValueMap<String, MultipartFile> multiFileMap = multipartRequest.getMultiFileMap();
         Map<String, List<MultipartFile>> files = new HashMap<>(multiFileMap);
-        return imageService.uploadImage(files, igType);
+
+        return ResponseEntity.ok(ApiResponse.success(imageService.uploadImage(files, igType)));
     }
 
     /**
@@ -42,8 +44,10 @@ public class ImageController {
      * @param igIdx 이미지 idx
      */
     @DeleteMapping("/{igIdx}")
-    public void deleteImage(@PathVariable Long igIdx) {
+    public ResponseEntity<Object> deleteImage(@PathVariable Long igIdx) {
         imageService.deleteImage(igIdx);
+
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     /**
@@ -53,7 +57,7 @@ public class ImageController {
      * @param limit 캐러셀에 노출할 최대 이미지 개수
      */
     @GetMapping(BEST + LIST + "/{citIdx}")
-    public BestImageResponse findBestImages(@PathVariable Long citIdx, @RequestParam Integer limit) {
-        return imageService.findBestImages(citIdx, limit);
+    public ResponseEntity<Object> findBestImages(@PathVariable Long citIdx, @RequestParam Integer limit) {
+        return ResponseEntity.ok(ApiResponse.success(imageService.findBestImages(citIdx, limit)));
     }
 }

@@ -2,11 +2,10 @@ package com.travelhub.travelhub_api.common.component.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -17,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.*;
+import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.*;
 
 @Component
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
             setResponse(response, TOKEN_INVALID);
         } catch (AuthException e) {
             log.error("doFilterInternal() : JWT 인증 오류", e);
-            setResponse(response, e.getErrorCodes());
+            setResponse(response, e.getResponseCodes());
         } catch (Exception e) {
             log.error("doFilterInternal() : 내부 오류", e);
             setResponse(response, SERVER_ERROR);
@@ -54,7 +53,7 @@ public class JwtExceptionHandlingFilter extends OncePerRequestFilter {
      * @param codes 에러코드
      * @throws IOException
      */
-    private void setResponse(HttpServletResponse response, ErrorCodes codes) throws IOException {
+    private void setResponse(HttpServletResponse response, ResponseCodes codes) throws IOException {
         response.setStatus(codes.getStatus().value());
         response.getWriter().write(objectMapper.writeValueAsString(codes));
     }

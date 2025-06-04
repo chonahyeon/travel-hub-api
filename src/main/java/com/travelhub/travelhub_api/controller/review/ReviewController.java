@@ -1,15 +1,13 @@
 package com.travelhub.travelhub_api.controller.review;
 
+import com.travelhub.travelhub_api.controller.common.response.ApiResponse;
 import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest;
-import com.travelhub.travelhub_api.controller.review.response.ReviewCreateResponse;
-import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserDTO;
 import com.travelhub.travelhub_api.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
 
@@ -25,8 +23,8 @@ public class ReviewController {
      * GET /travel/v1/review/list?ctIdx=1
      */
     @GetMapping(LIST)
-    public List<ReviewListResponse> findReviews(@RequestParam Long ctIdx, Pageable pageable) {
-        return reviewService.findReviews(ctIdx, pageable);
+    public ResponseEntity<Object> findReviews(@RequestParam Long ctIdx, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(reviewService.findReviews(ctIdx, pageable)));
     }
 
     /**
@@ -34,9 +32,10 @@ public class ReviewController {
      * GET /travel/v1/review/list-user
      */
     @GetMapping(LIST_USER)
-    public List<ReviewListResponse> findReviewsByUser(Pageable pageable) {
+    public ResponseEntity<Object> findReviewsByUser(Pageable pageable) {
         String uId = LoginUserDTO.get();
-        return reviewService.findReviewsUser(uId, pageable);
+
+        return ResponseEntity.ok(ApiResponse.success(reviewService.findReviewsUser(uId, pageable)));
     }
 
     /**
@@ -45,8 +44,8 @@ public class ReviewController {
      * @param request request body
      */
     @PostMapping
-    public ReviewCreateResponse createReview(@RequestBody ReviewCreateRequest request) {
-        return reviewService.createReview(request);
+    public ResponseEntity<Object> createReview(@RequestBody ReviewCreateRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(reviewService.createReview(request)));
     }
 
     /**
@@ -54,8 +53,10 @@ public class ReviewController {
      * PUT /travel/v1/review
      */
     @PatchMapping("/{rvIdx}")
-    public void updateReview(@PathVariable Long rvIdx, @RequestBody ReviewCreateRequest request){
+    public ResponseEntity<Object> updateReview(@PathVariable Long rvIdx, @RequestBody ReviewCreateRequest request){
         reviewService.updateReview(rvIdx, request);
+
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     /**
@@ -64,7 +65,9 @@ public class ReviewController {
      * @param rvIdx 리뷰 idx
      */
     @DeleteMapping("/{rvIdx}")
-    public void deleteReview(@PathVariable Long rvIdx) {
+    public ResponseEntity<Object> deleteReview(@PathVariable Long rvIdx) {
         reviewService.deleteReview(rvIdx);
+
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }

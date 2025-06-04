@@ -3,7 +3,6 @@ package com.travelhub.travelhub_api.service.auth;
 import com.travelhub.travelhub_api.common.resource.exception.AuthException;
 import com.travelhub.travelhub_api.common.util.CookieUtil;
 import com.travelhub.travelhub_api.data.dto.auth.LoginUserEventDTO;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
 import com.travelhub.travelhub_api.service.common.RedisService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -26,7 +25,7 @@ import java.util.Optional;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_ACCESS_TOKEN;
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.AUTH_REFRESH_TOKEN;
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.*;
+import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.*;
 
 @Slf4j
 @Service
