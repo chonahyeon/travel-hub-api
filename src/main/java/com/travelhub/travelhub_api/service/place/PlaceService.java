@@ -13,7 +13,7 @@ import com.travelhub.travelhub_api.data.dto.place.GooglePlacesV2DTO;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.CountryEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.CountryRepository;
 import com.travelhub.travelhub_api.data.mysql.support.PlaceRepositorySuppport;
@@ -58,7 +58,7 @@ public class PlaceService {
             if (null == places || places.isEmpty()) {
                 // 국가 정보 조회
                 CountryEntity countryEntity = countryRepository.findByCntCode(cntCode)
-                        .orElseThrow(() -> new CustomException(ErrorCodes.INVALID_PARAM, "countryCode"));
+                        .orElseThrow(() -> new CustomException(ResponseCodes.INVALID_PARAM, "countryCode"));
 
                 // google place api 조회
                 GooglePlaceRequestDTO requestDTO = GooglePlaceRequestDTO.of(name, countryEntity.getCntCode());
@@ -76,7 +76,7 @@ public class PlaceService {
             }
         } catch (NoSuchElementException e) {
             log.warn("place not found. REQ = '{}'", name);
-            throw new CustomException(ErrorCodes.INVALID_PARAM, name);
+            throw new CustomException(ResponseCodes.INVALID_PARAM, name);
         } catch (Exception e) {
             log.error("장소 조회 error. ", e);
         }

@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.travelhub.travelhub_api.data.enums.ImageType.RV;
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.INVALID_PARAM;
+import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.INVALID_PARAM;
 
 @Service
 @Slf4j

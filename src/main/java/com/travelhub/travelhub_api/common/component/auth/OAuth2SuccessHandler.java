@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 import static com.travelhub.travelhub_api.common.resource.TravelHubResource.*;
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.TOKEN_INVALID;
+import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.TOKEN_INVALID;
 import static com.travelhub.travelhub_api.data.enums.common.Role.ROLE_GUEST;
 
 @RequiredArgsConstructor

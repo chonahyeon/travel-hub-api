@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.controller.contents;
 
+import com.travelhub.travelhub_api.controller.common.response.ApiResponse;
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsCreateResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
@@ -27,28 +28,35 @@ public class ContentsController {
     private final ContentsService contentsService;
 
     @PostMapping
-    public ContentsCreateResponse create(@Valid @RequestBody ContentsRequest request) {
-        return contentsService.create(request);
+    public ResponseEntity<Object> create(@Valid @RequestBody ContentsRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(contentsService.create(request)));
     }
 
     @GetMapping("/{contentsId}")
-    public ContentsResponse get(@PathVariable Long contentsId) {
-        return contentsService.get(contentsId);
+    public ResponseEntity<Object> get(@PathVariable Long contentsId) {
+        return ResponseEntity.ok(ApiResponse.success(contentsService.get(contentsId)));
     }
 
     @PatchMapping("/{contentsId}")
-    public void update(@PathVariable Long contentsId, @Valid @RequestBody ContentsRequest request) {
+    public ResponseEntity<Object> update(@PathVariable Long contentsId,
+                                         @Valid @RequestBody ContentsRequest request) {
         contentsService.update(contentsId, request);
+
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @DeleteMapping("/{contentsId}")
-    public void delete(@PathVariable Long contentsId) {
+    public ResponseEntity<Object> delete(@PathVariable Long contentsId) {
         contentsService.delete(contentsId);
+
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping(LIST)
-    public List<ContentsListResponse> getList(@RequestParam(required = false) List<String> tags, @RequestParam(required = false) String city, Pageable pageable) {
-        return contentsService.getList(tags, city, pageable);
+    public ResponseEntity<Object> getList(@RequestParam(required = false) List<String> tags,
+                                          @RequestParam(required = false) String city,
+                                          Pageable pageable) {
+        return ResponseEntity.ok(contentsService.getList(tags, city, pageable));
     }
 
     /**
@@ -56,7 +64,8 @@ public class ContentsController {
      * GET /travel/v1/contents/main?tags=1,2&page=1&size=10
      */
     @GetMapping(MAIN)
-    public List<ContentsMainListResponse> getMainList(@RequestParam List<Long> tags, Pageable pageable) {
-        return contentsService.findMainList(tags, pageable);
+    public ResponseEntity<Object> getMainList(@RequestParam List<Long> tags,
+                                              Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(contentsService.findMainList(tags, pageable)));
     }
 }

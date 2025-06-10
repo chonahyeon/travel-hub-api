@@ -20,7 +20,7 @@ import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
 import com.travelhub.travelhub_api.common.util.FileUtil;
 import com.travelhub.travelhub_api.data.dto.storage.UploadDTO;
-import com.travelhub.travelhub_api.data.enums.common.ErrorCodes;
+import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
 import com.travelhub.travelhub_api.data.mysql.entity.StorageEntity;
 import com.travelhub.travelhub_api.data.mysql.repository.StorageRepository;
 import com.travelhub.travelhub_api.service.common.RedisService;
@@ -99,7 +99,7 @@ public class StorageService {
             return preAuthenticatedDomain;
         } catch (Exception e) {
             log.error("getImageList() : ", e);
-            throw new CustomException(ErrorCodes.SERVER_ERROR);
+            throw new CustomException(ResponseCodes.SERVER_ERROR);
         }
     }
 
@@ -113,7 +113,7 @@ public class StorageService {
         // redis 에 저장된 정보가 없으면 사전 인증된 도메인 갱신.
         return tempDomain.orElseGet(() -> {
             StorageEntity storage = storageRepository.findById(1L)
-                    .orElseThrow(() -> new CustomException(ErrorCodes.STORAGE_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ResponseCodes.STORAGE_NOT_FOUND));
             return getPreAuthenticated(storage);
         });
     }
@@ -125,7 +125,7 @@ public class StorageService {
     @Async(value = "uploadExecutor")
     public void uploadFiles(List<UploadDTO> uploadDTOS) {
         StorageEntity storage = storageRepository.findById(1L)
-                .orElseThrow(() -> new CustomException(ErrorCodes.STORAGE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResponseCodes.STORAGE_NOT_FOUND));
 
         try (ObjectStorageAsyncClient asyncClient = getAsyncClient())
         {
@@ -198,7 +198,7 @@ public class StorageService {
 
     public void deleteFile(String deletePath) {
         StorageEntity storage = storageRepository.findById(1L)
-                .orElseThrow(() -> new CustomException(ErrorCodes.STORAGE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResponseCodes.STORAGE_NOT_FOUND));
 
         try (ObjectStorage client = getClient()) {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
@@ -210,7 +210,7 @@ public class StorageService {
             client.deleteObject(deleteObjectRequest);
         } catch (Exception e) {
             log.error("deleteImage() : ", e);
-            throw new CustomException(ErrorCodes.SERVER_ERROR);
+            throw new CustomException(ResponseCodes.SERVER_ERROR);
         }
     }
 }

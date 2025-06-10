@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.travelhub.travelhub_api.data.enums.common.ErrorCodes.TOKEN_INVALID;
+import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.TOKEN_INVALID;
 
 @Service
 @Slf4j
