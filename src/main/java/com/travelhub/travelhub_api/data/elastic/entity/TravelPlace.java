@@ -1,6 +1,6 @@
 package com.travelhub.travelhub_api.data.elastic.entity;
 
-import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
+import com.travelhub.travelhub_api.controller.place.response.ContentsPlaceResponse;
 import com.travelhub.travelhub_api.data.mysql.entity.PlaceEntity;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,8 +23,8 @@ public class TravelPlace {
     private String compoundCode;
     private String citName;
 
-    public PlaceResponse ofPlaceResponse() {
-        return PlaceResponse.builder()
+    public ContentsPlaceResponse ofPlaceResponse() {
+        return ContentsPlaceResponse.builder()
                 .pcId(this.pcId)
                 .pcName(this.pcName)
                 .pcAddress(this.pcAddress)

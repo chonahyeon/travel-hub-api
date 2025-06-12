@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 public record BestImageResponse(
-        List<String> igPath
+        List<String> list
 ) {
     public static BestImageResponse of(List<BestImageListDTO> dto, String domain) {
         List<String> igPath = dto.stream()
@@ -17,7 +17,7 @@ public record BestImageResponse(
                 .toList();
 
         return BestImageResponse.builder()
-                .igPath(igPath)
+                .list(igPath)
                 .build();
     }
 }

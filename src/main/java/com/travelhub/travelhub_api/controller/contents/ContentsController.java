@@ -56,7 +56,7 @@ public class ContentsController {
     public ResponseEntity<Object> getList(@RequestParam(required = false) List<String> tags,
                                           @RequestParam(required = false) String city,
                                           Pageable pageable) {
-        return ResponseEntity.ok(contentsService.getList(tags, city, pageable));
+        return ResponseEntity.ok(ApiResponse.success(contentsService.getList(tags, city, pageable)));
     }
 
     /**
@@ -64,7 +64,7 @@ public class ContentsController {
      * GET /travel/v1/contents/main?tags=1,2&page=1&size=10
      */
     @GetMapping(MAIN)
-    public ResponseEntity<Object> getMainList(@RequestParam List<Long> tags,
+    public ResponseEntity<Object> getMainList(@RequestParam(required = false) List<Long> tags,
                                               Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(contentsService.findMainList(tags, pageable)));
     }

@@ -27,8 +27,11 @@ public record ContentsListResponse(
         return ContentsListResponse.builder()
                 .ctIdx(contentsTagDTO.ctIdx())
                 .ctTitle(contentsTagDTO.ctTitle())
+                .ctViewCount(contentsTagDTO.ctViewCount())
                 .ctScore(contentsTagDTO.ctScore())
                 .usId(contentsTagDTO.usId())
+                .insertTime(contentsTagDTO.insertTime())
+                .updateTime(contentsTagDTO.updateTime())
                 .build();
     }
 }

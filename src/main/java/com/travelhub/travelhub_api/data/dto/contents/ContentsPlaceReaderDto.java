@@ -2,19 +2,15 @@ package com.travelhub.travelhub_api.data.dto.contents;
 
 import com.travelhub.travelhub_api.data.dto.image.ImagePathsDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
+import com.travelhub.travelhub_api.data.mysql.entity.ContentsEntity;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public record ContentsPlaceReaderDto(
-        Long ctIdx,
-        String ctTitle,
-        Double ctScore,
-        LocalDateTime insertTime,
-        LocalDateTime updateTime,
+        ContentsEntity contents,
         Long cpIdx,
         Integer cpOrder,
         ContentsPlaceType cpType,
@@ -27,16 +23,6 @@ public record ContentsPlaceReaderDto(
         Double pcRating,
         String igPath
 ) {
-    public ContentsDto ofContents() {
-        return ContentsDto.builder()
-                .ctIdx(this.ctIdx)
-                .ctTitle(this.ctTitle)
-                .ctScore(this.ctScore)
-                .insertTime(this.insertTime)
-                .updateTime(this.updateTime)
-                .build();
-    }
-
     public PlaceDto ofPlace(String domain) {
 
         List<ImagePathsDto> images = new ArrayList<>();

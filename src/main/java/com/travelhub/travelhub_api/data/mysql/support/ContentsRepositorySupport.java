@@ -40,8 +40,6 @@ public class ContentsRepositorySupport {
                                 Expressions.asNumber(ExpressionUtils.as(subQueryCount, counts))
                         )
                 ).from(tagEntity)
-                .leftJoin(contentsTagEntity)
-                .on(contentsTagEntity.tgIdx.eq(tagEntity.tgIdx))
                 .offset(pageable.getPageNumber())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -56,13 +54,17 @@ public class ContentsRepositorySupport {
         }
 
         return jpaQueryFactory.select(
-                Projections.fields(
+                Projections.constructor(
                         ContentsTagDTO.class,
                         contentsEntity.ctIdx,
                         contentsEntity.ctTitle,
                         contentsEntity.ctScore,
                         contentsEntity.ctViewCount,
-                        contentsEntity.usId
+                        contentsEntity.usId,
+                        contentsEntity.insertTime,
+                        contentsEntity.updateTime,
+                        tagEntity.tgIdx,
+                        tagEntity.tgName
                 )
         ).from(contentsTagEntity)
         .innerJoin(tagEntity)
