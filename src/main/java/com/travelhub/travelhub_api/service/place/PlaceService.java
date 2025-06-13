@@ -61,7 +61,8 @@ public class PlaceService {
                         .orElseThrow(() -> new CustomException(ResponseCodes.INVALID_PARAM, "countryCode"));
 
                 // google place api 조회
-                GooglePlaceRequestDTO requestDTO = GooglePlaceRequestDTO.of(name, countryEntity.getCntCode());
+                GooglePlaceRequestDTO requestDTO = GooglePlaceRequestDTO.of(name, countryEntity);
+                log.info("구글맵 Request : {}", requestDTO);
                 List<TravelPlace> googlePlaces = getGooglePlacesV2(requestDTO);
 
                 // elasticSearch 저장

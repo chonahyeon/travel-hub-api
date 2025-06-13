@@ -24,4 +24,16 @@ public class CountryEntity {
 
     @Column(name = "cnt_name")
     private String cntName;
+
+    @Column(name = "cnt_low_lat")
+    private Double cntLowLat;
+
+    @Column(name = "cnt_low_lng")
+    private Double cntLowLng;
+
+    @Column(name = "cnt_high_lat")
+    private Double cntHighLat;
+
+    @Column(name = "cnt_high_lng")
+    private Double cntHighLng;
 }
