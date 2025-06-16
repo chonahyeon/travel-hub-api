@@ -17,6 +17,7 @@ import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,14 +73,18 @@ public class ReviewService {
         // 컨텐츠 리뷰 점수 업데이트
         updateReviewScore(contents);
 
-        // 이미지 정보 저장
+        // 이미지 정보 저장 (없으면 null 로 반환)
         Long rvIdx = save.getRvIdx();
-        ImageEntity imageEntity = request.ofImage(rvIdx);
-        ImageEntity imageSave = imageRepository.save(imageEntity);
+        Long igIdx = null;
+        if (!request.igPath().isEmpty()) {
+            ImageEntity imageEntity = request.ofImage(rvIdx);
+            ImageEntity imageSave = imageRepository.save(imageEntity);
+            igIdx = imageSave.getIgIdx();
+        }
 
         return ReviewCreateResponse.builder()
                 .rvIdx(rvIdx)
-                .igIdx(imageSave.getIgIdx())
+                .igIdx(igIdx)
                 .build();
     }
 
@@ -102,9 +107,14 @@ public class ReviewService {
                     .orElseThrow(() -> new CustomException(INVALID_PARAM, "igIdx"));
 
             // 이미지 업데이트
-            imageEntity.updateImagePath(request.concatIgPath());
+            if (!request.igPath().isEmpty()) {
+                imageEntity.updateImagePath(request.concatIgPath());
+            } else {
+                // 경로가 없으면 delete 처리 (idx O, path empty)
+                imageRepository.deleteById(request.igIdx());
+            }
         } else if (!request.igPath().isEmpty()){
-            // 이미지 정보가 없다면 추가
+            // 이미지 정보가 없다면 추가 (idx X, path exists)
             ImageEntity imageEntity = request.ofImage(rvIdx);
             imageRepository.save(imageEntity);
         }
