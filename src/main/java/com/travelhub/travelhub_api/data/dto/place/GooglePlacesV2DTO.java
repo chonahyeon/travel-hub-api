@@ -16,13 +16,14 @@ public class GooglePlacesV2DTO {
     public static class Places {
         private String id;
         private String formattedAddress;
+        private List<AddressComponents> addressComponents;
         private Location location;
         private double rating;
         private DisplayName displayName;
         private List<Photos> photos;
         private PlusCode plusCode;
 
-        public TravelPlace of(String citName) {
+        public TravelPlace of(String citName, String citLangCode) {
             return TravelPlace.builder()
                     .pcId(this.id)
                     .pcName(this.displayName.getText())
@@ -32,8 +33,17 @@ public class GooglePlacesV2DTO {
                     .pcLng(this.location.longitude)
                     .compoundCode(this.plusCode.compoundCode)
                     .citName(citName)
+                    .citLangCode(citLangCode)
                     .build();
         }
+    }
+
+    @Data
+    public static class AddressComponents {
+        private String longText;
+        private String shortText;
+        private List<String> types;
+        private String languageCode;
     }
 
     @Data

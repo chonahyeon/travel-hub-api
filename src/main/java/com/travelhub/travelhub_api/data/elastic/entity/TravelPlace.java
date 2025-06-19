@@ -22,6 +22,7 @@ public class TravelPlace {
     private double pcLat;
     private String compoundCode;
     private String citName;
+    private String citLangCode;
 
     public PlaceResponse ofPlaceResponse() {
         return PlaceResponse.builder()

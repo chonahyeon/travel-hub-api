@@ -10,6 +10,7 @@ import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlaceRequestDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesV2DTO;
+import com.travelhub.travelhub_api.data.dto.place.GooglePlacesV2DTO.AddressComponents;
 import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
@@ -62,7 +63,7 @@ public class PlaceService {
 
                 // google place api 조회
                 GooglePlaceRequestDTO requestDTO = GooglePlaceRequestDTO.of(name, countryEntity);
-                log.info("구글맵 Request : {}", requestDTO);
+                log.info("> 구글맵 Request : {}", requestDTO);
                 List<TravelPlace> googlePlaces = getGooglePlacesV2(requestDTO);
 
                 // elasticSearch 저장
@@ -132,10 +133,10 @@ public class PlaceService {
         List<TravelPlace> travelPlaces = places.getPlaces()
                 .stream()
                 .map(place -> {
-                    String compoundCode = (place.getPlusCode() != null ? place.getPlusCode().getCompoundCode() : null);
-                    String citName = parseAddressToCity(compoundCode, place.getFormattedAddress(), requestDTO.getRegionCode());
-                    return place.of(citName);
+                    AddressComponents addressComponents = parseAddressToCity(place.getFormattedAddress(), place.getAddressComponents());
+                    return (addressComponents != null ? place.of(addressComponents.getShortText(), addressComponents.getLanguageCode()) : null);
                 })
+                .filter(Objects::nonNull)
                 .toList();
         if (travelPlaces.isEmpty()) throw new NoSuchElementException();
         return travelPlaces;
@@ -157,6 +158,16 @@ public class PlaceService {
         }
 
         return places.subList(start, end);
+    }
+
+    private AddressComponents parseAddressToCity(String formattedAddress, List<AddressComponents> addressComponents) {
+        return addressComponents.stream()
+                .filter(components -> components.getTypes().contains("administrative_area_level_1"))
+                .findFirst()
+                .orElseGet(() -> {
+                    log.warn("도시명 없음. 원본 주소 : {}", formattedAddress);
+                    return null;
+                });
     }
 
     /**
