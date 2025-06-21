@@ -3,6 +3,7 @@ package com.travelhub.travelhub_api.service.contents;
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV1;
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.common.response.ListResponse;
 import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsCreateResponse;
 import com.travelhub.travelhub_api.controller.contents.response.ContentsListResponse;
@@ -76,7 +77,7 @@ public class ContentsService {
         }
 
         // content, place 분기 처리
-        ContentsDto contents = contentsPlaceList.get(0).ofContents();
+        ContentsDto contents = contentsPlaceList.get(0).contents().ofContents();
 
         String domain = storageService.getImageDomain();
         List<PlaceDto> places = contentsPlaceList.stream()
@@ -118,9 +119,9 @@ public class ContentsService {
                 .forEach(contentsPlace -> imageRepository.deleteByIdxAndIgType(contentsPlace.getCpIdx(), ImageType.CT));
     }
 
-    public List<ContentsListResponse> getList(List<String> tags, String city, Pageable pageable) {
+    public ListResponse<ContentsListResponse> getList(List<String> tags, String city, Pageable pageable) {
         // tags, cities 가 있는 경우에만 join 처리
-        return contentsRepository.findContentsByAllByTagsAndCities(tags, city, pageable);
+        return new ListResponse<>(contentsRepository.findContentsByAllByTagsAndCities(tags, city, pageable));
     }
 
     private void saveContentsPlace(Long contentsIdx, ContentsPlaceWriterDto reqContentsPlace) {
@@ -240,14 +241,14 @@ public class ContentsService {
     }
 
     @Transactional(readOnly = true)
-    public List<ContentsMainListResponse> findMainList(List<Long> tags, Pageable pageable) {
+    public ListResponse<ContentsMainListResponse> findMainList(List<Long> tags, Pageable pageable) {
         List<ContentsMainListResponse> responses = new ArrayList<>();
         // 메인 컨텐츠 조회
         List<ContentsTagDTO> mainContents = contentsRepositorySupport.findMainContents(tags, pageable);
 
         // 태그별 그룹화
         Map<String, List<ContentsTagDTO>> groupByTag = mainContents.stream()
-                .collect(Collectors.groupingBy(ContentsTagDTO::tagName));
+                .collect(Collectors.groupingBy(ContentsTagDTO::tgName));
 
         for (String tag : groupByTag.keySet()) {
             List<ContentsTagDTO> tagContents = groupByTag.getOrDefault(tag, new ArrayList<>());
@@ -260,7 +261,7 @@ public class ContentsService {
 
             responses.add(response);
         }
-        return responses;
+        return new ListResponse<>(responses);
     }
 
     private ContentsUpdateDto getContents(Long contentsId) {

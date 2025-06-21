@@ -9,6 +9,7 @@ public record ContentsDto(
         Long ctIdx,
         String ctTitle,
         Double ctScore,
+        Long ctViewCount,
         LocalDateTime insertTime,
         LocalDateTime updateTime
 ) {

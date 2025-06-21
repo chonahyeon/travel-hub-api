@@ -1,11 +1,9 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
-import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
+import com.travelhub.travelhub_api.data.dto.contents.ContentsDto;
 import com.travelhub.travelhub_api.data.mysql.entity.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import jakarta.ws.rs.DefaultValue;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -43,5 +41,18 @@ public class ContentsEntity extends BaseTimeEntity {
 
     public void updateScore(Double score) {
         this.ctScore = score;
+    }
+
+    public ContentsDto ofContents() {
+        this.ctViewCount++;
+
+        return ContentsDto.builder()
+                .ctIdx(this.ctIdx)
+                .ctTitle(this.ctTitle)
+                .ctScore(this.ctScore)
+                .ctViewCount(this.ctViewCount)
+                .insertTime(this.getInsertTime())
+                .updateTime(this.getUpdateTime())
+                .build();
     }
 }

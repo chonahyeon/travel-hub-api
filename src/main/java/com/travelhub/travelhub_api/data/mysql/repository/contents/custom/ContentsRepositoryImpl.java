@@ -31,11 +31,7 @@ public class ContentsRepositoryImpl implements ContentsRepositoryCustom {
 
         return query
                 .select(Projections.constructor(ContentsPlaceReaderDto.class,
-                        contents.ctIdx,
-                        contents.ctTitle,
-                        contents.ctScore,
-                        contents.insertTime,
-                        contents.updateTime,
+                        contents,
                         contentsPlace.cpIdx,
                         contentsPlace.cpOrder,
                         contentsPlace.cpType,

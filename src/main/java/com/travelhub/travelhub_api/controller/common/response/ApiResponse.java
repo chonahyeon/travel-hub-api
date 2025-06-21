@@ -1,13 +1,11 @@
 package com.travelhub.travelhub_api.controller.common.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import static com.travelhub.travelhub_api.data.enums.common.ResponseCodes.SUCCESS_OK;
 
 @Getter
-@Builder
 @AllArgsConstructor(staticName = "of")
 public class ApiResponse<T> {
     private final String code;

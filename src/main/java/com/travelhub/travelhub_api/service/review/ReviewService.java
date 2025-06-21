@@ -1,6 +1,7 @@
 package com.travelhub.travelhub_api.service.review;
 
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.common.response.ListResponse;
 import com.travelhub.travelhub_api.controller.review.request.ReviewCreateRequest;
 import com.travelhub.travelhub_api.controller.review.response.ReviewCreateResponse;
 import com.travelhub.travelhub_api.controller.review.response.ReviewListResponse;
@@ -42,20 +43,20 @@ public class ReviewService {
      * 리뷰 조회
      */
     @Transactional(readOnly = true)
-    public List<ReviewListResponse> findReviews(Long ctIdx, Pageable pageable) {
+    public ListResponse<ReviewListResponse> findReviews(Long ctIdx, Pageable pageable) {
         List<ContentReviewsDTO> reviews = reviewRepositorySupport.findReviews(ctIdx, pageable);
         String imageDomain = storageService.getImageDomain();
-        return ReviewListResponse.ofList(reviews, imageDomain);
+        return new ListResponse<>(ReviewListResponse.ofList(reviews, imageDomain));
     }
 
     /*
      * 사용자 작성 리뷰 조회
      */
     @Transactional(readOnly = true)
-    public List<ReviewListResponse> findReviewsUser(String usId, Pageable pageable) {
+    public ListResponse<ReviewListResponse> findReviewsUser(String usId, Pageable pageable) {
         List<ContentReviewsDTO> userReviews = reviewRepositorySupport.findUserReviews(usId, pageable);
         String imageDomain = storageService.getImageDomain();
-        return ReviewListResponse.ofList(userReviews, imageDomain);
+        return new ListResponse<>(ReviewListResponse.ofList(userReviews, imageDomain));
     }
 
     /*

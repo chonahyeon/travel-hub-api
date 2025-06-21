@@ -4,8 +4,9 @@ import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV1;
 import com.travelhub.travelhub_api.common.component.clients.GoogleMapsClientV2;
 import com.travelhub.travelhub_api.common.resource.TravelHubResource;
 import com.travelhub.travelhub_api.common.resource.exception.CustomException;
+import com.travelhub.travelhub_api.controller.common.response.ListResponse;
 import com.travelhub.travelhub_api.controller.place.response.MainPlaceResponse;
-import com.travelhub.travelhub_api.controller.place.response.PlaceResponse;
+import com.travelhub.travelhub_api.controller.place.response.ContentsPlaceResponse;
 import com.travelhub.travelhub_api.data.dto.image.MainPlaceListDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlaceRequestDTO;
 import com.travelhub.travelhub_api.data.dto.place.GooglePlacesDTO;
@@ -42,8 +43,8 @@ public class PlaceService {
     private final StorageService storageService;
     private final CountryRepository countryRepository;
 
-    public List<PlaceResponse> get(String name, String type, String cntCode, Pageable pageable) {
-        List<PlaceResponse> response = new ArrayList<>();
+    public ListResponse<ContentsPlaceResponse> get(String name, String type, String cntCode, Pageable pageable) {
+        List<ContentsPlaceResponse> response = new ArrayList<>();
         /*
          * searchType
          *  G = 일반 검색, R = 재검색
@@ -83,7 +84,7 @@ public class PlaceService {
             log.error("장소 조회 error. ", e);
         }
 
-        return response;
+        return new ListResponse<>(response);
     }
 
     /*
@@ -143,10 +144,10 @@ public class PlaceService {
     }
 
     @Transactional(readOnly = true)
-    public List<MainPlaceResponse> findMainPlaces() {
+    public ListResponse<MainPlaceResponse> findMainPlaces() {
         List<MainPlaceListDTO> mainPlaces = placeRepositorySuppport.findMainPlaces();
         String domain = storageService.getImageDomain();
-        return MainPlaceResponse.ofListDTO(mainPlaces, domain);
+        return new ListResponse<>(MainPlaceResponse.ofListDTO(mainPlaces, domain));
     }
 
     private List<TravelPlace> paginateGooglePlaces(List<TravelPlace> places, Pageable pageable) {

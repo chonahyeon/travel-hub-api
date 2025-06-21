@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.service.tag;
 
+import com.travelhub.travelhub_api.controller.common.response.ListResponse;
 import com.travelhub.travelhub_api.controller.tag.response.TagListResponse;
 import com.travelhub.travelhub_api.data.dto.tag.TagListDTO;
 import com.travelhub.travelhub_api.data.mysql.repository.tag.TagRepository;
@@ -25,8 +26,8 @@ public class TagService {
      * @param pageable 페이징
      */
     @Transactional(readOnly = true)
-    public List<TagListResponse> findTagList(Pageable pageable) {
+    public ListResponse<TagListResponse> findTagList(Pageable pageable) {
         List<TagListDTO> tags = contentsRepositorySupport.findContentsTag(pageable);
-        return TagListResponse.ofList(tags);
+        return new ListResponse<>(TagListResponse.ofList(tags));
     }
 }
