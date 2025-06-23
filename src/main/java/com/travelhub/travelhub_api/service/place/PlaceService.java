@@ -81,6 +81,10 @@ public class PlaceService {
             log.warn("place not found. REQ = '{}'", name);
             throw new CustomException(ResponseCodes.INVALID_PARAM, name);
         } catch (Exception e) {
+            if (e instanceof CustomException) {
+                throw e;
+            }
+
             log.error("장소 조회 error. ", e);
         }
 
