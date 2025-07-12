@@ -1,0 +1,49 @@
+spring:
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true  # thymeleaf 설정
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${{GO_CLIENT_ID}}
+            client-secret: ${{GO_CLIENT_SECRET}}
+            redirect-uri: http://localhost/login/oauth2/code/google
+            scope: profile,email
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    url: jdbc:mysql://${{TRAVEL_DB_HOST}}:${{TRAVEL_DB_PORT}}/travel_hub?autoReconnect=true&characterEncoding=utf8&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: ${{TRAVEL_DB_USER}}
+    password: ${{TRAVEL_DB_PORT}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${{TRAVEL_REDIS_HOST}}
+      port: ${{TRAVEL_REDIS_PORT}}
+      password: ${{TRAVEL_REDIS_PWD}}
+  elasticsearch:
+    uris: ${{TRAVEL_ELASTIC_URI}}
+
+app:
+  cron:
+    reload: 0 * * * * *
+    refresh-place: 0 0 0 * * *
+
+elastic:
+  place-index: dev_travel
+
+jwt:
+  expiration_time: 3600000 # 만료일 1시간 설정
+  secret: ${{TRAVEL_JWT}}
+
+server:
+  port: 9700
+logging:
+  config: ./logback-spring.xml

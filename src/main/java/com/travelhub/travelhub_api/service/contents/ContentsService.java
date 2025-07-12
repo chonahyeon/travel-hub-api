@@ -98,7 +98,7 @@ public class ContentsService {
         ContentsUpdateDto contentsSummary = getContents(contentsId);
 
         // 제목 업데이트
-        contentsSummary.contents().updateTitle(request.title());
+        contentsSummary.contents().updateContents(request);
 
         // 태그 업데이트
         updateTag(contentsId, contentsSummary.tags().stream().map(TagDto::tgIdx).toList(), request.tags());

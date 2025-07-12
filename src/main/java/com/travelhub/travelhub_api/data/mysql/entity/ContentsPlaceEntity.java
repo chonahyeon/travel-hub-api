@@ -41,6 +41,6 @@ public class ContentsPlaceEntity {
 
     public void updatePlaceText(ContentsPlaceWriterDto dto) {
         this.cpOrder = dto.cpOrder();
-        this.cpText = dto.text();
+        this.cpText = dto.cpText();
     }
 }

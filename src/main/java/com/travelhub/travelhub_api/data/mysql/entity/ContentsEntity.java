@@ -1,11 +1,16 @@
 package com.travelhub.travelhub_api.data.mysql.entity;
 
+import com.travelhub.travelhub_api.controller.contents.request.ContentsRequest;
 import com.travelhub.travelhub_api.data.dto.contents.ContentsDto;
 import com.travelhub.travelhub_api.data.mysql.entity.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -35,8 +40,16 @@ public class ContentsEntity extends BaseTimeEntity {
     @Column(name = "us_id", nullable = false)
     private String usId;
 
-    public void updateTitle(String title) {
-        this.ctTitle = title;
+    @Column(name = "ct_start_time")
+    private LocalDate ctStartTime;
+
+    @Column(name = "ct_end_time")
+    private LocalDate ctEndTime;
+
+    public void updateContents(ContentsRequest request) {
+        this.ctTitle = request.ctTitle();
+        this.ctStartTime = request.ctStartTime();
+        this.ctEndTime = request.ctEndTime();
     }
 
     public void updateScore(Double score) {
@@ -53,6 +66,8 @@ public class ContentsEntity extends BaseTimeEntity {
                 .ctViewCount(this.ctViewCount)
                 .insertTime(this.getInsertTime())
                 .updateTime(this.getUpdateTime())
+                .ctStartTime(this.ctStartTime)
+                .ctEndTime(this.ctEndTime)
                 .build();
     }
 }

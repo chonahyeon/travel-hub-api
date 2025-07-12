@@ -1,5 +1,6 @@
 package com.travelhub.travelhub_api.data.dto.contents;
 
+import com.travelhub.travelhub_api.data.dto.image.ImagePathsDto;
 import com.travelhub.travelhub_api.data.enums.ContentsPlaceType;
 import com.travelhub.travelhub_api.data.enums.ImageType;
 import com.travelhub.travelhub_api.data.mysql.entity.ContentsPlaceEntity;
@@ -10,9 +11,9 @@ import java.util.stream.IntStream;
 
 public record ContentsPlaceWriterDto(
         String pcId,
-        String text,
+        String cpText,
         Integer cpOrder,
-        List<String> images,
+        List<ImagePathsDto> images,
         Long cpIdx
 ) {
     public ContentsPlaceEntity ofContentsPlaceEntity(Long ctIdx, Long pcIdx) {
@@ -20,7 +21,7 @@ public record ContentsPlaceWriterDto(
                 .cpType(ContentsPlaceType.M)
                 .cpOrder(this.cpOrder())
                 .pcIdx(pcIdx)
-                .cpText(this.text)
+                .cpText(this.cpText)
                 .ctIdx(ctIdx)
                 .build();
     }
@@ -37,7 +38,7 @@ public record ContentsPlaceWriterDto(
     public String convertImages() {
         StringBuilder sb = new StringBuilder();
         IntStream.range(0, images.size()).forEachOrdered(i -> {
-            sb.append(images.get(i));
+            sb.append(images.get(i).igPath());
 
             if (i < images.size() - 1) {
                 sb.append(",");

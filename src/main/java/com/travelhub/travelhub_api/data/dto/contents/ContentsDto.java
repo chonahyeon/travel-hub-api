@@ -2,6 +2,7 @@ package com.travelhub.travelhub_api.data.dto.contents;
 
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -11,6 +12,9 @@ public record ContentsDto(
         Double ctScore,
         Long ctViewCount,
         LocalDateTime insertTime,
-        LocalDateTime updateTime
+        LocalDateTime updateTime,
+        LocalDate ctStartTime,
+        LocalDate ctEndTime
+
 ) {
 }
