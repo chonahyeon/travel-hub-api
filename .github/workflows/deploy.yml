@@ -1,0 +1,84 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up YML Settings
+        run: |
+          REF_NAME=${{ github.ref_name }}
+          YML_CONFIG=${{ secrets.TRAVEL_CONFIG }}
+          mkdir -p src/main/resources
+          echo "${YML_CONFIG}" | base64 -d > src/main/resources/application-${REF_NAME}.yml
+
+      - name: Build JAR with Gradle
+        run: ./gradlew clean build --no-daemon -x test
+
+      - name: Package Deploy Files
+        run: |
+          REF_NAME=${{ github.ref_name }}
+          
+          # jar 복사
+          mkdir -p deploy/config
+          cp build/libs/*.jar deploy/
+          
+          # config 복사
+          sed -i -E 's/^([[:space:]]*active:[[:space:]]*).*/\1'"$REF_NAME"'/' bootstrap.yml
+          cp bootstrap.yml logback-spring.xml deploy
+          
+          cp config/${REF_NAME}.yml deploy/config
+          ls -l deploy/
+          
+          # package
+          tar -czf deploy_travel_hub.tar.gz -C deploy .
+
+      - name: Upload to EC2
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.ORACLE_HOST}}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_KEY }}
+          source: "deploy_travel_hub.tar.gz"
+          target: "/home/ubuntu/deploy"
+
+      - name: deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST}}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_KEY }}
+          script: |
+            # java install check
+            if java --version 2>&1 | grep -q 'openjdk 17'; then
+               echo "Already Install Java!"
+            else
+               echo "Start Install Java 17"
+               sudo apt update
+               sudo apt install -y openjdk-17-jdk
+            fi
+            
+            # jar 압축 해제
+            REF_PATH=${{ secrets.TRAVEL_HUB_PATH }}
+            mkdir -p ${REF_PATH}
+            cd /home/ubuntu/deploy
+            sudo tar -xzf deploy_travel_hub.tar.gz -C ${REF_PATH} --overwrite
+            ls -l ${REF_PATH}
+            
+            # jar 재시작
+            PROCESS_NAME=travel-hub-api
+            sudo systemctl restart $PROCESS_NAME
