@@ -1,0 +1,8 @@
+storage:
+  config:
+    path: "~/.oci/config"
+auth:
+  enable: false
+  user: nh_d4
+google:
+  search-fields: places.id,places.formattedAddress,places.location,places.rating,places.displayName,places.photos,places.plusCode,places.addressComponents
