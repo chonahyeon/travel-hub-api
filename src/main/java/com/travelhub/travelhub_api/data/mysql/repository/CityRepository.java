@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface CityRepository extends JpaRepository<CityEntity, Long> {
-    Optional<CityEntity> findByCitName(String citName);
+    Optional<CityEntity> findByCitViewName(String citName);
+    Optional<CityEntity> findByCitNameContaining(String citOtherName);
 }

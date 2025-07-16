@@ -151,7 +151,7 @@ public class ContentsService {
                             .orElseThrow(() -> new CustomException(ResponseCodes.PLACE_NOT_FOUND));
 
                     // 도시 인덱스 조회 from db
-                    Long citIdx = cityRepository.findByCitName(placeInfo.getCitName())
+                    Long citIdx = cityRepository.findByCitViewName(placeInfo.getCitName())
                             .orElseThrow(() -> new CustomException(ResponseCodes.CITY_NOT_FOUND))
                             .getCitIdx();
 

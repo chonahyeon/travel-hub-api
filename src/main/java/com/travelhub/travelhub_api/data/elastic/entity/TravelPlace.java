@@ -24,7 +24,7 @@ public class TravelPlace {
     private String citName;
     private String citLangCode;
 
-    public ContentsPlaceResponse ofPlaceResponse() {
+    public ContentsPlaceResponse ofPlaceResponse(String citName) {
         return ContentsPlaceResponse.builder()
                 .pcId(this.pcId)
                 .pcName(this.pcName)
@@ -32,7 +32,7 @@ public class TravelPlace {
                 .pcRating(this.pcRating)
                 .pcLng(this.pcLng)
                 .pcLat(this.pcLat)
-                .citName(this.citName)
+                .citName(citName)
                 .build();
     }
 

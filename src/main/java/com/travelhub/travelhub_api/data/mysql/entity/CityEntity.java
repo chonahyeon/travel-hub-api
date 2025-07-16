@@ -21,6 +21,9 @@ public class CityEntity {
     @Column(name = "cnt_idx")
     Long cntIdx;
 
+    @Column(name = "cit_view_name")
+    String citViewName;
+
     @Column(name = "cit_name")
     String citName;
 

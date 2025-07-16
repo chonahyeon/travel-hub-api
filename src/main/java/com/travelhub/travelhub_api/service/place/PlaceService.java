@@ -16,9 +16,12 @@ import com.travelhub.travelhub_api.data.elastic.entity.TravelPlace;
 import com.travelhub.travelhub_api.data.elastic.repository.TravelRepository;
 import com.travelhub.travelhub_api.data.enums.SearchType;
 import com.travelhub.travelhub_api.data.enums.common.ResponseCodes;
+import com.travelhub.travelhub_api.data.mysql.entity.CityEntity;
 import com.travelhub.travelhub_api.data.mysql.entity.CountryEntity;
+import com.travelhub.travelhub_api.data.mysql.repository.CityRepository;
 import com.travelhub.travelhub_api.data.mysql.repository.CountryRepository;
 import com.travelhub.travelhub_api.data.mysql.support.PlaceRepositorySuppport;
+import com.travelhub.travelhub_api.service.common.RedisService;
 import com.travelhub.travelhub_api.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,8 @@ public class PlaceService {
     private final PlaceRepositorySuppport placeRepositorySuppport;
     private final StorageService storageService;
     private final CountryRepository countryRepository;
+    private final CityRepository cityRepository;
+    private final RedisService<String, String> redisService;
 
     public ListResponse<ContentsPlaceResponse> get(String name, String type, String cntCode, Pageable pageable) {
         List<ContentsPlaceResponse> response = new ArrayList<>();
@@ -75,7 +80,21 @@ public class PlaceService {
             }
 
             if (!places.isEmpty()) {
-                response = places.stream().map(TravelPlace::ofPlaceResponse).collect(Collectors.toList());
+                response = places.stream()
+                        .map(place -> {
+                            String citLangCode = place.getCitLangCode();
+                            String citName;
+
+                            // 도시명이 한국어가 아닌경우 한국어로 치환
+                            if (!"ko".equals(citLangCode)) {
+                                citName = getCityViewName(place.getCitName());
+                            } else {
+                                citName = place.getCitName();
+                            }
+
+                            return place.ofPlaceResponse(citName);
+                        })
+                        .collect(Collectors.toList());
             }
         } catch (NoSuchElementException e) {
             log.warn("place not found. REQ = '{}'", name);
@@ -89,6 +108,20 @@ public class PlaceService {
         }
 
         return new ListResponse<>(response);
+    }
+
+    /*
+     * 도시명이 한국어가 아닐 때 한국어로 변환하여 전달.
+     */
+    private String getCityViewName(String citOtherName) {
+        Optional<String> viewName = redisService.get(citOtherName);
+
+        return viewName.orElseGet(() -> {
+            Optional<CityEntity> city = cityRepository.findByCitNameContaining(citOtherName);
+            String citName = city.map(CityEntity::getCitViewName).orElse(null);
+            redisService.save(citOtherName, citName);
+            return citName;
+        });
     }
 
     /*
@@ -134,6 +167,7 @@ public class PlaceService {
      */
     private List<TravelPlace> getGooglePlacesV2(GooglePlaceRequestDTO requestDTO) {
         GooglePlacesV2DTO places = mapsClientV2.getPlaces(TravelHubResource.googleMapSearchFields, requestDTO);
+
         // formatting
         List<TravelPlace> travelPlaces = places.getPlaces()
                 .stream()
@@ -143,6 +177,7 @@ public class PlaceService {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+
         if (travelPlaces.isEmpty()) throw new NoSuchElementException();
         return travelPlaces;
     }

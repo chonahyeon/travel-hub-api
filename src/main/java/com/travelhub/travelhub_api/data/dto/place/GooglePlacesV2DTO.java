@@ -31,7 +31,7 @@ public class GooglePlacesV2DTO {
                     .pcRating(this.rating)
                     .pcLat(this.location.latitude)
                     .pcLng(this.location.longitude)
-                    .compoundCode(this.plusCode.compoundCode)
+//                    .compoundCode(this.plusCode.compoundCode)
                     .citName(citName)
                     .citLangCode(citLangCode)
                     .build();

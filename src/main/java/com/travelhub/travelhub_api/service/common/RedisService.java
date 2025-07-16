@@ -27,14 +27,17 @@ public class RedisService<K,V> {
      */
     public void save(K key, V value) {
         redisTemplate.opsForValue().set(key, value, Duration.ofMillis(ttl * 3));
+        log.info("[REDIS] key → {}, value → {} save success", key, value);
     }
 
     public void delete(K key) {
         redisTemplate.delete(key);
+        log.info("[REDIS] key → {} delete success", key);
     }
 
     public Optional<V> get(K key) {
         V value = redisTemplate.opsForValue().get(key);
+        log.info("[REDIS] key → {} get success", key);
         return Optional.ofNullable(value);
     }
 }
